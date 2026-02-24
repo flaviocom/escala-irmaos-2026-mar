@@ -4,6 +4,7 @@ import { youwareVitePlugin } from "@youware/vite-plugin-react";
 
 // https://vite.dev/config/
 export default defineConfig({
+base: "/escala-irmaos-2026-mar/",
   plugins: [youwareVitePlugin(), react()],
   server: {
     host: "127.0.0.1",

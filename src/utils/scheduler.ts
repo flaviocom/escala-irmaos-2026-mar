@@ -41,7 +41,7 @@ export function generateEmptySchedule(): Shift[] {
 
     // Sunday: Manhã, Noite
     if (dayOfWeek === 0) {
-      shifts.push({ id: `shift-${shiftIdCounter++}`, date, type: 'MANHA', assignedBrothers: [] });
+      shifts.push({ id: `shift-${shiftIdCounter++}`, date, type: 'MANHÃ', assignedBrothers: [] });
       shifts.push({ id: `shift-${shiftIdCounter++}`, date, type: 'NOITE', assignedBrothers: [] });
     }
     

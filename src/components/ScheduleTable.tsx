@@ -100,7 +100,7 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
 
     // Colors: Morning=Yellow(Amber), Afternoon=Orange/Blue, Night=Indigo
     const config = {
-      'MANHA': { bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-100', icon: Sun },
+      'MANHÃ': { bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-100', icon: Sun },
       'TARDE': { bg: 'bg-orange-50', text: 'text-orange-600', border: 'border-orange-100', icon: CloudSun },
       'NOITE': { bg: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-100', icon: MoonStar },
     }[type] || { bg: 'bg-surface-subtle', text: 'text-text-muted', border: 'border-border-subtle', icon: Clock };
@@ -174,7 +174,7 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
               
               // Config colors based on type
               const typeConfig = {
-                'MANHA': { color: 'bg-amber-500', light: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700' },
+                'MANHÃ': { color: 'bg-amber-500', light: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700' },
                 'TARDE': { color: 'bg-orange-500', light: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700' },
                 'NOITE': { color: 'bg-indigo-500', light: 'bg-indigo-50', border: 'border-indigo-200', text: 'text-indigo-700' },
                 'SANTA_CEIA': { color: 'bg-red-500', light: 'bg-red-50', border: 'border-red-200', text: 'text-red-700' }
@@ -206,6 +206,9 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
                       <div className="flex-1 bg-white flex flex-col items-center justify-center">
                         <span className="text-base font-bold text-gray-900 leading-none">
                           {format(shift.date, 'dd')}
+                        </span>
+                        <span className="text-[9px] text-gray-500 font-medium leading-none mt-0.5">
+                          {format(shift.date, 'EEE', { locale: ptBR })}
                         </span>
                       </div>
                     </div>

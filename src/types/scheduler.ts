@@ -1,4 +1,4 @@
-export type ShiftType = 'MANHA' | 'TARDE' | 'NOITE' | 'SANTA_CEIA';
+export type ShiftType = 'MANHÃ' | 'TARDE' | 'NOITE' | 'SANTA_CEIA';
 
 export interface Brother {
   id: string;
