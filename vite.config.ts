@@ -1,0 +1,16 @@
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { youwareVitePlugin } from "@youware/vite-plugin-react";
+
+// https://vite.dev/config/
+export default defineConfig({
+base: "/escala-irmaos-2026-mar-v2/",
+  plugins: [youwareVitePlugin(), react()],
+  server: {
+    host: "127.0.0.1",
+    port: 5173,
+  },
+  build: {
+    sourcemap: true,
+  },
+});
