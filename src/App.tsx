@@ -195,16 +195,14 @@ function App() {
             onClick={() => setIsMobileMenuOpen(false)}
           />
           {/* Painel (Bottom Sheet) */}
-          <div className="relative w-full bg-white shadow-2xl rounded-t-[32px] flex flex-col animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-hidden">
-            {/* Botão X fora da caixa (acima do painel) */}
-            <div className="absolute -top-16 left-0 right-0 flex justify-center px-4">
-              <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="p-3 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full text-white transition-all border border-white/20 shadow-lg"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
+          <div className="relative w-full bg-white shadow-2xl rounded-t-[32px] flex flex-col animate-in slide-in-from-bottom duration-300 max-h-[95vh] overflow-hidden">
+            {/* Botão X fora da caixa (Acima à direita) */}
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="absolute -top-12 right-4 p-2 text-white/90 hover:text-white transition-colors"
+            >
+              <X className="w-9 h-9 stroke-[1.5px]" />
+            </button>
 
             {/* Handle visual no topo */}
             <div className="w-full h-8 flex items-center justify-center shrink-0">
