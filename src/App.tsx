@@ -7,7 +7,7 @@ import { StatsView } from './components/StatsView';
 import { ValidationView } from './components/ValidationView';
 import { MultiSelect } from './components/MultiSelect';
 import { DateSearch } from './components/DateSearch';
-import { Calendar, Download, Filter, X, LayoutGrid, BarChart3, ShieldCheck, Menu } from 'lucide-react';
+import { Calendar, Download, Filter, X, LayoutGrid, BarChart3, ShieldCheck, Menu, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { clsx } from 'clsx';
@@ -206,24 +206,34 @@ function App() {
       <main className="flex-1 flex flex-col min-w-0 md:pl-[320px]">
 
         {/* Header Mobile */}
-        <header className="md:hidden bg-white border-b border-gray-200 sticky top-0 z-30 px-4 h-16 flex items-center justify-between shadow-sm">
-          <div className="flex items-center gap-4">
+        <header className="md:hidden bg-white border-b border-gray-100 sticky top-0 z-30 px-3 sm:px-4 h-16 flex items-center justify-between shadow-sm overflow-hidden gap-1">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="p-1 -ml-1 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-1 -ml-1 text-gray-800 hover:bg-gray-100 rounded-lg transition-colors shrink-0"
             >
-              <Menu className="w-7 h-7" />
+              <Menu className="w-6 h-6 sm:w-7 sm:h-7" />
             </button>
-            <div className="flex items-center gap-3">
-              <img src={logo} alt="Logo CCB" className="h-8 w-auto object-contain" />
-              <div>
-                <h1 className="text-sm font-bold text-text-primary tracking-tight leading-none uppercase">
+            <div className="flex items-center gap-2 min-w-0">
+              <img src={logo} alt="Logo CCB" className="h-7 sm:h-9 w-auto object-contain shrink-0" />
+              <div className="flex flex-col min-w-0">
+                <h1 className="text-[11px] sm:text-sm font-bold text-text-primary tracking-tight leading-none uppercase truncate">
                   Escala Porteiros
                 </h1>
-                <p className="text-[10px] text-text-secondary mt-0.5 font-medium tracking-wider">JD. SÃO LUIZ - 2026</p>
+                <p className="text-[9px] sm:text-[10px] text-text-secondary mt-0.5 font-medium tracking-wider truncate uppercase">JD. SÃO LUIZ-2026</p>
               </div>
             </div>
           </div>
+
+          {/* Filter Button (Mobile Header) */}
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="flex items-center gap-1 sm:gap-1.5 text-action-primary text-[11px] sm:text-sm font-bold whitespace-nowrap hover:bg-blue-50 px-2 py-1.5 rounded-md transition-colors shrink-0"
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span>Filtros {activeFiltersCount > 0 && `(${activeFiltersCount})`}</span>
+            <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          </button>
         </header>
 
         {/* View renderizada (Container onde a foto será tirada) */}

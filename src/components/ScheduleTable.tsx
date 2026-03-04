@@ -25,6 +25,9 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
   const hasScrolled = useRef(false);
 
   const filteredShifts = useMemo(() => {
+    const normalize = (val: string) =>
+      val.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
     return shifts.filter(shift => {
       // 1. Date Range Filter
       if (dateRange?.start && dateRange?.end) {
@@ -35,7 +38,7 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
 
       // 2. Text Search Filter (Date or Day)
       if (dateSearchQuery) {
-        const query = dateSearchQuery.toLowerCase().trim();
+        const query = normalize(dateSearchQuery).trim();
         let isDateRangeText = false;
 
         // Skip text search if it matches the range exactly (avoid redundancy)
@@ -44,7 +47,7 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
             ? format(dateRange.start, 'dd/MM/yyyy')
             : `${format(dateRange.start, 'dd/MM')} - ${format(dateRange.end, 'dd/MM')}`;
 
-          if (query === rangeStr.toLowerCase()) {
+          if (query === normalize(rangeStr)) {
             isDateRangeText = true;
           }
         }
@@ -54,8 +57,8 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
           const dateStrShort = format(shift.date, 'dd/MM');
           const dateStrNoZero = format(shift.date, 'd/M');
           const dateStrNoZeroFull = format(shift.date, 'd/M/yyyy');
-          const monthName = format(shift.date, 'MMMM', { locale: ptBR }).toLowerCase();
-          const dayName = format(shift.date, 'EEEE', { locale: ptBR }).toLowerCase();
+          const monthName = normalize(format(shift.date, 'MMMM', { locale: ptBR }));
+          const dayName = normalize(format(shift.date, 'EEEE', { locale: ptBR }));
 
           const matchesDate =
             dateStrFull.includes(query) ||
