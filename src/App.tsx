@@ -194,23 +194,28 @@ function App() {
             className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          {/* Painel (Bottom Sheet) */}
-          <div className="relative w-full bg-white shadow-2xl rounded-t-[32px] flex flex-col animate-in slide-in-from-bottom duration-300 max-h-[95vh] overflow-hidden">
+          {/* Container Wrapper (para permitir elementos fora da div com overflow-hidden) */}
+          <div className="relative w-full flex flex-col">
             {/* Botão X fora da caixa (Acima à direita) */}
-            <button
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="absolute -top-12 right-4 p-2 text-white/90 hover:text-white transition-colors"
-            >
-              <X className="w-9 h-9 stroke-[1.5px]" />
-            </button>
-
-            {/* Handle visual no topo */}
-            <div className="w-full h-8 flex items-center justify-center shrink-0">
-              <div className="w-12 h-1.5 bg-gray-200 rounded-full" />
+            <div className="flex justify-end pr-4 pb-4">
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-1 text-white/90 hover:text-white transition-colors"
+              >
+                <X className="w-9 h-9 stroke-[1.5px]" />
+              </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto pb-10">
-              {sidebarContent}
+            {/* Painel (Bottom Sheet) */}
+            <div className="relative w-full bg-white shadow-2xl rounded-t-[32px] flex flex-col animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-hidden">
+              {/* Handle visual no topo */}
+              <div className="w-full h-8 flex items-center justify-center shrink-0">
+                <div className="w-12 h-1.5 bg-gray-200 rounded-full" />
+              </div>
+
+              <div className="flex-1 overflow-y-auto pb-10">
+                {sidebarContent}
+              </div>
             </div>
           </div>
         </div>
