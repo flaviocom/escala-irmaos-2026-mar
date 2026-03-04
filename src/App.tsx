@@ -52,9 +52,9 @@ function App() {
   };
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-white px-5 py-6 overflow-y-auto">
-      {/* Desktop Logo (hidden on mobile drawer since header has it or keep it for brand context) */}
-      <div className="flex items-center gap-3 mb-8">
+    <div className="flex flex-col h-full px-5 py-2 overflow-y-auto">
+      {/* Desktop Logo (hidden on mobile drawer inside bottom sheet if header has it) */}
+      <div className="hidden md:flex items-center gap-3 mb-8">
         <img src={logo} alt="Logo CCB" className="h-10 w-auto object-contain" />
         <div>
           <h1 className="text-base font-bold text-text-primary tracking-tight leading-none uppercase">
@@ -62,6 +62,11 @@ function App() {
           </h1>
           <p className="text-[10px] text-text-secondary mt-1 font-medium tracking-wider">JD. SÃO LUIZ - 2026</p>
         </div>
+      </div>
+
+      {/* Título Mobile (para indicar o que é o painel) */}
+      <div className="md:hidden mb-6 text-center">
+        <h2 className="text-sm font-bold text-gray-400 uppercase tracking-[0.2em]">Filtros e Opções</h2>
       </div>
 
       {/* Conteúdo da Navegação Principal */}
@@ -181,23 +186,34 @@ function App() {
         {sidebarContent}
       </aside>
 
-      {/* Drawer Mobile */}
+      {/* Bottom Sheet Mobile */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex">
+        <div className="md:hidden fixed inset-0 z-50 flex items-end">
           {/* Overlay fundo escuro */}
           <div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          {/* Gaveta */}
-          <div className="relative w-[300px] max-w-[85vw] h-full bg-white shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
-            <button
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="absolute top-4 right-4 p-2 bg-gray-100 hover:bg-gray-200 rounded-full z-10 transition-colors"
-            >
-              <X className="w-5 h-5 text-gray-700" />
-            </button>
-            {sidebarContent}
+          {/* Painel (Bottom Sheet) */}
+          <div className="relative w-full bg-white shadow-2xl rounded-t-[32px] flex flex-col animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-hidden">
+            {/* Botão X fora da caixa (acima do painel) */}
+            <div className="absolute -top-16 left-0 right-0 flex justify-center px-4">
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-3 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full text-white transition-all border border-white/20 shadow-lg"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Handle visual no topo */}
+            <div className="w-full h-8 flex items-center justify-center shrink-0">
+              <div className="w-12 h-1.5 bg-gray-200 rounded-full" />
+            </div>
+
+            <div className="flex-1 overflow-y-auto pb-10">
+              {sidebarContent}
+            </div>
           </div>
         </div>
       )}
