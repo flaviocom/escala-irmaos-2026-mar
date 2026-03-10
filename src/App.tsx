@@ -7,7 +7,7 @@ import { StatsView } from './components/StatsView';
 import { ValidationView } from './components/ValidationView';
 import { MultiSelect } from './components/MultiSelect';
 import { DateSearch } from './components/DateSearch';
-import { Calendar, Download, Filter, X, LayoutGrid, BarChart3, ShieldCheck, Menu, SlidersHorizontal, ChevronDown, MessageCircle, User, ChevronRight, Search } from 'lucide-react';
+import { Calendar, Download, Filter, X, LayoutGrid, BarChart3, ShieldCheck, Menu, SlidersHorizontal, ChevronDown, MessageCircle, User, ChevronRight, Search, Loader2 } from 'lucide-react';
 import { format, parseISO, addDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { clsx } from 'clsx';
@@ -21,6 +21,7 @@ function App() {
   const [dateRange, setDateRange] = useState<{ start: Date | null; end: Date | null } | null>(null);
   const [view, setView] = useState<'schedule' | 'stats' | 'validation'>('schedule');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // 🆕 E: Minha Escala — salva o nome do irmão no localStorage
   const [myBrotherId, setMyBrotherId] = useState<string | null>(() => {
@@ -71,9 +72,15 @@ function App() {
     setShowMyShiftsOnly(false);
   };
 
-  const handleExport = () => {
-    exportToImage('schedule-container');
-    setIsMobileMenuOpen(false);
+  const handleExport = async () => {
+    if (isGenerating) return;
+    setIsGenerating(true);
+    try {
+      await exportToImage('schedule-container');
+    } finally {
+      setIsGenerating(false);
+      setIsMobileMenuOpen(false);
+    }
   };
 
   // 🆕 Selecionar meu irmão
@@ -293,10 +300,23 @@ function App() {
       <div className="pt-6 mt-6 border-t border-gray-100">
         <button
           onClick={handleExport}
-          className="w-full flex items-center justify-center gap-2 px-4 py-4 rounded-xl text-base font-bold text-white bg-[#25D366] hover:bg-[#128C7E] transition-all duration-200 shadow-md shadow-green-200"
+          disabled={isGenerating}
+          className={clsx(
+            "w-full flex items-center justify-center gap-2 px-4 py-4 rounded-xl text-base font-bold text-white transition-all duration-200 shadow-md",
+            isGenerating ? "bg-gray-400 cursor-not-allowed" : "bg-[#25D366] hover:bg-[#128C7E] shadow-green-200"
+          )}
         >
-          <MessageCircle className="h-6 w-6 fill-current" />
-          Enviar Escala p/ WhatsApp
+          {isGenerating ? (
+            <>
+              <Loader2 className="h-6 w-6 animate-spin" />
+              <span>Gerando Imagem...</span>
+            </>
+          ) : (
+            <>
+              <MessageCircle className="h-6 w-6 fill-current" />
+              <span>Enviar Escala p/ WhatsApp</span>
+            </>
+          )}
         </button>
       </div>
     </div>
@@ -465,11 +485,24 @@ function App() {
         {/* 🆕 B: Botão WhatsApp maior e mais claro no mobile */}
         <button
           onClick={handleExport}
-          className="md:hidden hide-on-export fixed bottom-6 right-4 z-40 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-2xl px-4 py-3.5 shadow-lg shadow-[#25D366]/40 transition-transform active:scale-95 flex items-center gap-2"
+          disabled={isGenerating}
+          className={clsx(
+            "md:hidden hide-on-export fixed bottom-6 right-4 z-40 text-white rounded-2xl px-4 py-3.5 shadow-lg transition-all active:scale-95 flex items-center gap-2",
+            isGenerating ? "bg-gray-400 cursor-not-allowed" : "bg-[#25D366] hover:bg-[#128C7E] shadow-[#25D366]/40"
+          )}
           title="Enviar Escala p/ WhatsApp"
         >
-          <MessageCircle className="h-6 w-6 fill-current" />
-          <span className="text-sm font-bold">Enviar</span>
+          {isGenerating ? (
+            <>
+              <Loader2 className="h-6 w-6 animate-spin" />
+              <span className="text-sm font-bold">Gerando...</span>
+            </>
+          ) : (
+            <>
+              <MessageCircle className="h-6 w-6 fill-current" />
+              <span className="text-sm font-bold">Enviar</span>
+            </>
+          )}
         </button>
 
         {/* View renderizada */}

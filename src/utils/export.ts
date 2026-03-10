@@ -1,58 +1,82 @@
-import { toJpeg } from 'html-to-image';
+import { toBlob } from 'html-to-image';
 import { format } from 'date-fns';
 
+/**
+ * Função para exportar a escala como imagem.
+ * Agora utiliza processamento em Blob e garante o download em todos os dispositivos.
+ */
 export async function exportToImage(elementId: string) {
-  try {
-    const node = document.getElementById(elementId);
-    if (!node) {
-      alert("Não foi possível encontrar a escala para exportar.");
-      return;
-    }
+  const node = document.getElementById(elementId);
+  if (!node) {
+    alert("Não foi possível encontrar a escala para exportar.");
+    return;
+  }
 
-    // Reveal the hidden header for the export output
-    const exportHeader = document.getElementById('export-header');
+  // Previne cliques duplos e indica processamento
+  const exportHeader = document.getElementById('export-header');
+  document.body.classList.add('is-exporting');
+
+  try {
+    // Revelar cabeçalho CCB para a foto
     if (exportHeader) {
       exportHeader.classList.remove('hidden');
       exportHeader.classList.add('flex');
     }
 
-    // Add class to hide elements that shouldn't be exported
-    document.body.classList.add('is-exporting');
+    // Pequeno delay para garantir que o DOM atualizou as classes de visualização
+    await new Promise(resolve => setTimeout(resolve, 300));
 
-    // Force styles for rendering (temporarily remove scroll limits, fix bg, etc)
-    const prevMaxHeight = node.style.maxHeight;
-    const prevOverflow = node.style.overflow;
-
-    // Create the image
-    const dataUrl = await toJpeg(node, {
-      quality: 0.95,
-      pixelRatio: 2, // Garante que não fique pixelado no zoom
-      width: 800, // Força a largura do canvas para não quebrar layout de celular
-      backgroundColor: '#f9fafb', // matches gray-50 or custom background
+    // Gerar o Blob da imagem (PNG é mais estável para escala de texto)
+    const blob = await toBlob(node, {
+      quality: 1,
+      pixelRatio: 3, // Qualidade alta para impressão/leitura
+      backgroundColor: '#ffffff',
+      // Forçamos o layout a se comportar como desktop durante o "print"
       style: {
+        transform: 'scale(1)',
+        width: '1000px', // Largura ideal para caber as 3 colunas (Data -> Turno -> Irmãos)
         margin: '0',
-        padding: '24px',
-        width: '800px', // Força a renderização com layout Desktop
-        maxWidth: 'none'
+        padding: '30px'
+      },
+      width: 1000,
+      filter: (domNode) => {
+        // Filtra elementos que não devem ir para a foto (como o botão flutuante)
+        return !domNode.classList?.contains('hide-on-export');
       }
     });
 
-    // Hide the header back
+    if (!blob) throw new Error('Falha ao gerar o arquivo de imagem.');
+
+    // Criar o link de download de forma robusta
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    // Nome do arquivo sem espaços ou caracteres especiais para evitar problemas em mobiles
+    const fileName = `escala-irmaos-${format(new Date(), 'dd-MM-yyyy')}.png`;
+
+    link.style.display = 'none';
+    link.href = url;
+    link.download = fileName;
+
+    // Obrigatório no Firefox e alguns Androids
+    document.body.appendChild(link);
+    link.click();
+
+    // Limpeza
+    setTimeout(() => {
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    }, 200);
+
+  } catch (err) {
+    console.error('Erro ao exportar:', err);
+    alert("Ocorreu um erro ao gerar a escala. Se o problema persistir, tente tirar um print da tela.");
+  } finally {
+    // Restaurar interface original
     if (exportHeader) {
       exportHeader.classList.add('hidden');
       exportHeader.classList.remove('flex');
     }
-
-    // Remove exporting class
     document.body.classList.remove('is-exporting');
-
-    // Create a download link
-    const link = document.createElement('a');
-    link.download = `escala_porteiros_${format(new Date(), 'dd_MM_yyyy')}.jpg`;
-    link.href = dataUrl;
-    link.click();
-  } catch (err) {
-    console.error('Erro ao gerar imagem', err);
-    alert("Houve um erro ao tentar gerar a imagem.");
   }
 }
