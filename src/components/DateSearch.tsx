@@ -88,7 +88,7 @@ export const DateSearch: React.FC<DateSearchProps> = ({ value, onChange, onDateR
           type="text"
           value={value}
           onChange={handleTextChange}
-          placeholder="Buscar data (ex: 25/12) ou dia..."
+          placeholder="Buscar dia ou Irmão (ex: 25/12, segunda, Flávio)"
           className={clsx(
             "w-full pl-10 pr-24 h-12 bg-white rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none transition-all shadow-sm",
             value || dateRange ? "border-2 border-amber-400" : "border border-gray-200 focus:ring-2 focus:ring-black/5 focus:border-gray-300"
