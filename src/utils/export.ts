@@ -31,18 +31,43 @@ export async function exportToImage(elementId: string) {
 
   // 4. Iniciar modo de exportação
   document.body.classList.add('is-exporting');
-  if (forceLimit) document.body.classList.add('limit-export');
+
+  let itemsToHide: HTMLElement[] = [];
+  let containersToHide: HTMLElement[] = [];
 
   const exportHeader = document.getElementById('export-header');
 
   try {
+    if (forceLimit) {
+      // 5. Ocultar manualmente os dias após o limite no DOM vivo, para o html-to-image respeitar de verdade
+      allItems.forEach((el, index) => {
+        if (index >= 20) {
+          const htmlEl = el as HTMLElement;
+          htmlEl.style.setProperty('display', 'none', 'important');
+          itemsToHide.push(htmlEl);
+        }
+      });
+
+      // Ocultar os contêineres de meses que ficaram vazios após o corte
+      const monthContainers = node.querySelectorAll('.month-container');
+      monthContainers.forEach(container => {
+        const visibleItems = Array.from(container.querySelectorAll('.export-item'))
+          .filter(el => (el as HTMLElement).style.display !== 'none');
+        if (visibleItems.length === 0) {
+          const htmlContainer = container as HTMLElement;
+          htmlContainer.style.setProperty('display', 'none', 'important');
+          containersToHide.push(htmlContainer);
+        }
+      });
+    }
+
     if (exportHeader) {
       exportHeader.classList.remove('hidden');
       exportHeader.classList.add('flex');
     }
 
     // Esperar um pouco mais para garantir que o layout CSS do "is-exporting" aplicou
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 800));
 
     const blob = await toBlob(node, {
       quality: 0.95,
@@ -91,7 +116,13 @@ export async function exportToImage(elementId: string) {
       exportHeader.classList.add('hidden');
       exportHeader.classList.remove('flex');
     }
+
+    // Restaurar a visibilidade original dos itens ocultados manualmente
+    if (forceLimit) {
+      itemsToHide.forEach(el => el.style.removeProperty('display'));
+      containersToHide.forEach(el => el.style.removeProperty('display'));
+    }
+
     document.body.classList.remove('is-exporting');
-    document.body.classList.remove('limit-export');
   }
 }

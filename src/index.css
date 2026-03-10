@@ -123,45 +123,37 @@ body.is-exporting .flex-1.min-w-0 {
   max-width: 650px !important;
 }
 
-/* Oculta dias excedentes se passar de 20 (evita bug de altura infinita) */
-body.limit-export .export-item:nth-child(n+21) {
-  display: none !important;
-}
-
 /* ALTO CONTRASTE PARA EXPORTAÇÃO */
 body.is-exporting .text-gray-900,
 body.is-exporting .text-gray-800 {
   color: #000000 !important;
-  font-weight: 700 !important;
+  font-weight: 800 !important;
 }
 
 body.is-exporting .text-gray-500,
 body.is-exporting .text-gray-400 {
   color: #111827 !important;
-  /* gray-900 para destacar */
+  /* gray-900 super forte para máximo contraste */
+  font-weight: 600 !important;
 }
 
-/* Separadores de dias com muito destaque */
-body.is-exporting .divide-gray-50,
-body.is-exporting .divide-gray-200 {
-  border-color: #9ca3af !important;
-  /* gray-400 */
-}
-
+/* Os cartões de dia agora têm bordas escuras e arredondadas para altíssimo contraste */
 body.is-exporting .export-item {
-  border-bottom: 2px solid #9ca3af !important;
-  /* gray-400 */
+  border: 3px solid #6b7280 !important;
+  /* gray-500 bem forte e grosso */
+  border-radius: 20px !important;
+  box-shadow: none !important;
+  margin-bottom: 5px !important;
 }
 
+/* Remover estilização desnecessária de container antigo */
 body.is-exporting .shadow-sm,
 body.is-exporting .shadow-md {
   box-shadow: none !important;
-  border: 1px solid #d1d5db !important;
-  /* gray-300 */
 }
 
 /* Cabeçalho do Mês com mais contraste na foto */
 body.is-exporting .bg-gray-50 {
-  background-color: #f9fafb !important;
-  border-bottom: 3px solid #4f46e5 !important;
+  background-color: #f3f4f6 !important;
+  border-bottom: 4px solid #4f46e5 !important;
 }

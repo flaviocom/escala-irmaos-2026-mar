@@ -174,7 +174,7 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
   return (
     <div className="space-y-8">
       {months.map(([monthStr, monthShifts]) => (
-        <div key={monthStr} className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <div key={monthStr} className="month-container bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex items-center gap-3">
             <Calendar className="h-5 w-5 text-action-primary" />
             <h3 className="text-lg font-bold text-gray-900 capitalize">
@@ -182,7 +182,7 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
             </h3>
           </div>
 
-          <div className="divide-y divide-gray-200">
+          <div className="flex flex-col gap-4 p-4 sm:p-6">
             {monthShifts.map((shift) => {
               const isToday = isSameDay(shift.date, today);
 
@@ -199,11 +199,11 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
                   ref={shift.id === firstUpcomingShiftId ? scrollRef : null}
                   id={shift.id}
                   className={clsx(
-                    "group relative transition-colors scroll-mt-24 export-item",
-                    isToday && "bg-amber-50/40 border-l-4 border-l-amber-500 ring-1 ring-amber-500/10 z-10"
+                    "group relative transition-all duration-300 scroll-mt-24 export-item border-2 rounded-3xl overflow-hidden shadow-sm hover:shadow-md",
+                    isToday ? "bg-amber-50/40 border-amber-500 ring-4 ring-amber-500/20 z-10" : "bg-white border-gray-200"
                   )}
                 >
-                  <div className="flex p-4 sm:p-6 gap-4 sm:gap-8">
+                  <div className="flex p-4 sm:p-5 gap-4 sm:gap-6 items-center">
                     <div className="flex flex-col items-center justify-start min-w-[85px] sm:min-w-[100px]">
                       {isToday && (
                         <span className="mb-2 px-2 py-0.5 bg-amber-500 text-white text-[10px] font-black rounded-full uppercase tracking-tighter animate-pulse shadow-sm">
