@@ -26,8 +26,8 @@ export async function exportToImage(elementId: string) {
 
     // 3. Capturar a imagem limpa e focada no que o React gerou (exatamente os 10 compromissos)
     const blob = await toBlob(node, {
-      quality: 0.95,
-      pixelRatio: 2,
+      quality: 0.98,
+      pixelRatio: 3,
       backgroundColor: '#ffffff',
       width: 1000,
       style: {

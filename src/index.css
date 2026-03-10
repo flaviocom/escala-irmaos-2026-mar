@@ -139,11 +139,14 @@ body.is-exporting .text-gray-400 {
 
 /* Os cartões de dia agora têm bordas escuras e arredondadas para altíssimo contraste */
 body.is-exporting .export-item {
-  border: 3px solid #6b7280 !important;
-  /* gray-500 bem forte e grosso */
-  border-radius: 20px !important;
+  border: 4px solid #4b5563 !important;
+  /* gray-600 ainda mais forte */
+  border-radius: 24px !important;
   box-shadow: none !important;
-  margin-bottom: 5px !important;
+  margin-bottom: 12px !important;
+  /* Mais espaçamento entre os dias */
+  padding: 10px !important;
+  /* padding extra interno para separar do texto */
 }
 
 /* Remover estilização desnecessária de container antigo */
@@ -155,5 +158,65 @@ body.is-exporting .shadow-md {
 /* Cabeçalho do Mês com mais contraste na foto */
 body.is-exporting .bg-gray-50 {
   background-color: #f3f4f6 !important;
-  border-bottom: 4px solid #4f46e5 !important;
+  border-bottom: 5px solid #4f46e5 !important;
+  padding-top: 24px !important;
+  padding-bottom: 24px !important;
+}
+
+/* AUMENTAR TAMANHO DAS FONTES NA EXPORTAÇÃO */
+body.is-exporting .text-xs {
+  font-size: 1.1rem !important;
+  line-height: 1.5rem !important;
+}
+
+body.is-exporting .text-sm {
+  font-size: 1.25rem !important;
+  line-height: 1.75rem !important;
+}
+
+body.is-exporting .text-base {
+  font-size: 1.5rem !important;
+  line-height: 2rem !important;
+}
+
+body.is-exporting .text-lg {
+  font-size: 1.75rem !important;
+  line-height: 2.25rem !important;
+}
+
+body.is-exporting .text-xl {
+  font-size: 2rem !important;
+  line-height: 2.5rem !important;
+}
+
+body.is-exporting .text-2xl {
+  font-size: 2.25rem !important;
+  line-height: 2.5rem !important;
+}
+
+body.is-exporting .text-3xl {
+  font-size: 2.5rem !important;
+  line-height: 2.5rem !important;
+}
+
+/* Para as bolinhas de data e irmãos */
+body.is-exporting .w-14,
+body.is-exporting .h-14,
+body.is-exporting .w-16,
+body.is-exporting .h-16 {
+  width: 5.5rem !important;
+  height: 5.5rem !important;
+}
+
+/* Contêiner do texto de turno (MANHÃ, TARDE, NOITE) */
+body.is-exporting .px-3.py-1 {
+  padding: 0.5rem 1rem !important;
+}
+
+/* Bolinhas com inicial do nome */
+body.is-exporting .w-10,
+body.is-exporting .h-10 {
+  width: 3.5rem !important;
+  height: 3.5rem !important;
+  font-size: 1.75rem !important;
 }
