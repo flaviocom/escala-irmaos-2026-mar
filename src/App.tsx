@@ -389,7 +389,7 @@ function App() {
       {/* Conteúdo Principal */}
       <main className="flex-1 flex flex-col min-w-0 md:pl-[320px]">
 
-        {/* 🆕 Header Mobile melhorado */}
+        {/* Header Mobile melhorado */}
         <header className="md:hidden bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm">
           <div className="px-3 h-16 flex items-center justify-between gap-1">
             <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -403,7 +403,7 @@ function App() {
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-              {/* 🆕 Botão "Minha Escala" no header mobile */}
+              {/* Botão "Minha Escala" no header mobile */}
               <button
                 onClick={() => myBrotherId ? setShowMyShiftsOnly(!showMyShiftsOnly) : setShowBrotherPicker(true)}
                 className={clsx(
@@ -427,31 +427,6 @@ function App() {
                 <span>Filtros {activeFiltersCount > 0 && `(${activeFiltersCount})`}</span>
               </button>
             </div>
-          </div>
-
-          {/* 🆕 C: Barra de filtros rápidos VISÍVEL no mobile */}
-          <div className="px-3 pb-2 flex gap-2 overflow-x-auto scrollbar-hide">
-            {[
-              { label: '15 dias', type: '15days' as const },
-              { label: 'Esta Semana', type: 'week' as const },
-              { label: 'Este Mês', type: 'month' as const },
-            ].map(({ label, type }) => (
-              <button
-                key={type}
-                onClick={() => handleQuickFilter(type)}
-                className="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-700 transition-all whitespace-nowrap"
-              >
-                {label}
-              </button>
-            ))}
-            {(activeFiltersCount > 0 || showMyShiftsOnly) && (
-              <button
-                onClick={clearFilters}
-                className="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold bg-red-100 text-red-600 hover:bg-red-200 transition-all whitespace-nowrap"
-              >
-                ✕ Limpar
-              </button>
-            )}
           </div>
         </header>
 

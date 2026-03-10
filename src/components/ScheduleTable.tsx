@@ -189,38 +189,47 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
               const isToday = isSameDay(shift.date, today);
               const isWithin15Days = shift.date >= startOfDay(today) && shift.date <= addDays(today, 15);
 
+              // Config colors based on type for the Date Box
+              const typeConfig = {
+                'MANHÃ': { bg: 'bg-amber-500', text: 'text-white', sub: 'text-amber-700', border: 'border-amber-200' },
+                'TARDE': { bg: 'bg-orange-500', text: 'text-white', sub: 'text-orange-700', border: 'border-orange-200' },
+                'NOITE': { bg: 'bg-indigo-600', text: 'text-white', sub: 'text-indigo-800', border: 'border-indigo-200' },
+                'SANTA_CEIA': { bg: 'bg-red-600', text: 'text-white', sub: 'text-red-800', border: 'border-red-200' }
+              }[shift.type] || { bg: 'bg-blue-600', text: 'text-white', sub: 'text-blue-800', border: 'border-blue-200' };
+
               return (
                 <div
                   key={shift.id}
                   ref={shift.id === firstUpcomingShiftId ? scrollRef : null}
+                  id={shift.id}
                   className={clsx(
                     "group relative transition-colors scroll-mt-24",
                     isToday && "bg-amber-50/40 border-l-4 border-l-amber-500 ring-1 ring-amber-500/10 z-10",
                     !isWithin15Days && "hide-on-export"
                   )}
                 >
-                  <div className="flex p-4 sm:p-6 gap-4 sm:gap-6">
+                  <div className="flex p-4 sm:p-6 gap-4 sm:gap-8">
                     {/* Data Side */}
-                    <div className="flex flex-col items-center justify-start min-w-[75px] sm:min-w-[85px]">
+                    <div className="flex flex-col items-center justify-start min-w-[85px] sm:min-w-[100px]">
                       {isToday && (
                         <span className="mb-2 px-2 py-0.5 bg-amber-500 text-white text-[10px] font-black rounded-full uppercase tracking-tighter animate-pulse shadow-sm">
                           HOJE
                         </span>
                       )}
                       <div className={clsx(
-                        "w-12 h-12 sm:w-14 sm:h-14 flex flex-col items-center justify-center rounded-2xl transition-all shadow-sm",
-                        isToday ? "bg-amber-500 text-white shadow-amber-200" : "bg-blue-50 text-blue-600 border border-blue-100"
+                        "w-14 h-14 sm:w-16 sm:h-16 flex flex-col items-center justify-center rounded-2xl transition-all shadow-md",
+                        typeConfig.bg, typeConfig.text
                       )}>
-                        <span className="text-[10px] font-bold leading-none uppercase opacity-80">
+                        <span className="text-xs sm:text-sm font-bold leading-none uppercase opacity-90">
                           {format(shift.date, 'MMM', { locale: ptBR }).replace('.', '')}
                         </span>
-                        <span className="text-xl font-black leading-none mt-1">
+                        <span className="text-2xl sm:text-3xl font-black leading-none mt-1">
                           {format(shift.date, 'dd')}
                         </span>
                       </div>
                       <span className={clsx(
-                        "text-[10px] font-bold mt-2 uppercase tracking-wide",
-                        isToday ? "text-amber-700" : "text-gray-400"
+                        "text-[11px] sm:text-xs font-black mt-2 uppercase tracking-widest",
+                        isToday ? "text-amber-700" : typeConfig.sub
                       )}>
                         {format(shift.date, 'EEEE', { locale: ptBR })}
                       </span>
