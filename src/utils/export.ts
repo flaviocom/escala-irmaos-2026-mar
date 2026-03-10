@@ -1,46 +1,45 @@
 import { toBlob } from 'html-to-image';
-import { format, addDays, isAfter, isBefore, startOfDay } from 'date-fns';
+import { format } from 'date-fns';
 
 /**
  * Função para exportar a escala como imagem.
- * Versão final corrigida para PC (Nome do arquivo) e Mobile (Tamanho e Share).
+ * Versão Robusta: Corta automaticamente escalas gigantes para evitar imagens infinitas.
  */
 export async function exportToImage(elementId: string) {
   const node = document.getElementById(elementId);
   if (!node) {
-    alert("Não foi possível encontrar a escala para exportar.");
+    alert("Não foi possível encontrar a escala.");
     return;
   }
 
-  // 1. RESOLVER PROBLEMA DA IMAGEM GIGANTE (SEM FILTRO)
-  // Contamos quantos grupos de dias existem
-  const dayGroups = node.querySelectorAll('.group.relative');
-  const isFiltered = document.querySelector('.active-filters-count')?.innerHTML !== '0';
+  // 1. Identificar se o usuário aplicou algum filtro real no App
+  const activeFiltersText = document.getElementById('active-filters-count')?.textContent || "0";
+  const isFiltered = parseInt(activeFiltersText) > 0;
 
-  // Se não houver filtro e houver muitos dias, aplicamos uma restrição visual temporária
-  if (!isFiltered && dayGroups.length > 20) {
-    const proceed = confirm(
-      `Sua escala está muito longa (${dayGroups.length} dias). \n\n` +
-      "Para evitar que a foto fique 'espremida' ou trave o WhatsApp, " +
-      "vamos gerar apenas os PRÓXIMOS 15 DIAS. \n\n" +
-      "Se quiser a escala completa, por favor, use o filtro de 'Mês' antes."
+  // 2. Localizar todos os cartões de dias da escala
+  const allShifts = Array.from(node.querySelectorAll('.group.relative'));
+
+  // 3. Regra de Segurança: Se não houver filtro e houver muita coisa, limitamos a 20 dias
+  let forceSlice = false;
+  if (!isFiltered && allShifts.length > 20) {
+    forceSlice = true;
+    const confirmSlice = confirm(
+      `Escala muito longa (${allShifts.length} dias). \n\n` +
+      "Para a foto não ficar 'gigante' e ilegível no WhatsApp, vamos gerar apenas os PRÓXIMOS 20 DIAS. \n\n" +
+      "Dica: Para exportar o mês inteiro, use o filtro de 'Mês' antes."
     );
-
-    if (!proceed) return;
-
-    // Aplicamos uma classe temporária para esconder os dias distantes na foto
-    dayGroups.forEach((group: any) => {
-      // Pequeno truque: se não for um dos primeiros 15, escondemos na exportação
-      // (Isso é apenas para a foto, não muda a tela do usuário)
-      const index = Array.from(dayGroups).indexOf(group);
-      if (index > 15) {
-        group.classList.add('hide-for-length');
-      }
-    });
+    if (!confirmSlice) return;
   }
 
   const exportHeader = document.getElementById('export-header');
   document.body.classList.add('is-exporting');
+
+  // Esconder dias excedentes se for o caso
+  if (forceSlice) {
+    allShifts.forEach((el, index) => {
+      if (index >= 20) (el as HTMLElement).style.display = 'none';
+    });
+  }
 
   try {
     if (exportHeader) {
@@ -48,70 +47,66 @@ export async function exportToImage(elementId: string) {
       exportHeader.classList.add('flex');
     }
 
-    // Delay para o navegador processar as novas classes
-    await new Promise(resolve => setTimeout(resolve, 700));
+    // Esperar renderização de fontes e imagens
+    await new Promise(resolve => setTimeout(resolve, 800));
 
-    // 2. GERAR O ARQUIVO (PNG)
+    // Gerar a foto
     const blob = await toBlob(node, {
-      quality: 1,
-      pixelRatio: 2, // 2x é o ideal para WhatsApp (nítido mas não pesado)
+      quality: 0.9,
+      pixelRatio: 2, // Ideal para WhatsApp
       backgroundColor: '#ffffff',
       width: 1000,
       style: {
         transform: 'none',
         width: '1000px',
         margin: '0',
-        padding: '30px'
+        padding: '40px'
       }
     });
 
-    if (!blob) throw new Error('Falha ao gerar arquivo de imagem');
+    if (!blob) throw new Error('Falha ao gerar imagem');
 
     const fileName = `escala-irmaos-${format(new Date(), 'dd-MM-yyyy')}.png`;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    // 3. SHARE (MOBILE)
+    // 📱 MOBILE: Share Nativo
     if (isMobile && navigator.share) {
       try {
         const file = new File([blob], fileName, { type: 'image/png' });
-        await navigator.share({
-          files: [file],
-          title: 'Escala Porteiros'
-        });
+        await navigator.share({ files: [file], title: 'Escala Porteiros CCB' });
         return;
-      } catch (e) {
-        console.warn('Share nativo falhou, tentando download...', e);
-      }
+      } catch (e) { console.warn('Share falhou'); }
     }
 
-    // 4. DOWNLOAD (PC) - Técnica Robusta para Chrome/Edge no Windows
+    // 💻 PC: Download com técnica de Blob segura
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-
-    // Configurações críticas para o PC reconhecer o PNG
     link.href = url;
     link.download = fileName;
-    link.dataset.downloadurl = ['image/png', link.download, link.href].join(':');
-
     document.body.appendChild(link);
     link.click();
 
-    // Limpeza
     setTimeout(() => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     }, 1000);
 
   } catch (err) {
-    console.error('Erro na exportação:', err);
-    alert("Não foi possível gerar a imagem. Tente filtrar por um período menor (ex: 15 dias).");
+    console.error('Erro:', err);
+    alert("Erro ao gerar imagem. Tente filtrar por um período menor.");
   } finally {
-    // Limpar classes temporárias
+    // Restaurar a interface para o usuário
     if (exportHeader) {
       exportHeader.classList.add('hidden');
       exportHeader.classList.remove('flex');
     }
     document.body.classList.remove('is-exporting');
-    dayGroups.forEach((group: any) => group.classList.remove('hide-for-length'));
+
+    // Voltar a mostrar os dias escondidos na tela do app
+    if (forceSlice) {
+      allShifts.forEach((el) => {
+        (el as HTMLElement).style.display = '';
+      });
+    }
   }
 }
