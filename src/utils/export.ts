@@ -1,9 +1,9 @@
-import { toPng, toBlob } from 'html-to-image';
-import { format } from 'date-fns';
+import { toBlob } from 'html-to-image';
+import { format, addDays, isAfter, isBefore, startOfDay } from 'date-fns';
 
 /**
  * Função para exportar a escala como imagem.
- * Versão ultra-compatível para PC (download com nome) e Mobile (compartilhamento).
+ * Versão final corrigida para PC (Nome do arquivo) e Mobile (Tamanho e Share).
  */
 export async function exportToImage(elementId: string) {
   const node = document.getElementById(elementId);
@@ -12,15 +12,31 @@ export async function exportToImage(elementId: string) {
     return;
   }
 
-  // Trava para escalas gigantes que travam o navegador
-  const shiftElements = node.querySelectorAll('.group.relative');
-  if (shiftElements.length > 50) {
-    const confirmLong = confirm(
-      `Escala muito longa (${shiftElements.length} dias). \n\n` +
-      "Isso pode falhar no PC ou Celular. \n\n" +
-      "Deseja continuar? Recomenda-se filtrar por 'Mês' antes."
+  // 1. RESOLVER PROBLEMA DA IMAGEM GIGANTE (SEM FILTRO)
+  // Contamos quantos grupos de dias existem
+  const dayGroups = node.querySelectorAll('.group.relative');
+  const isFiltered = document.querySelector('.active-filters-count')?.innerHTML !== '0';
+
+  // Se não houver filtro e houver muitos dias, aplicamos uma restrição visual temporária
+  if (!isFiltered && dayGroups.length > 20) {
+    const proceed = confirm(
+      `Sua escala está muito longa (${dayGroups.length} dias). \n\n` +
+      "Para evitar que a foto fique 'espremida' ou trave o WhatsApp, " +
+      "vamos gerar apenas os PRÓXIMOS 15 DIAS. \n\n" +
+      "Se quiser a escala completa, por favor, use o filtro de 'Mês' antes."
     );
-    if (!confirmLong) return;
+
+    if (!proceed) return;
+
+    // Aplicamos uma classe temporária para esconder os dias distantes na foto
+    dayGroups.forEach((group: any) => {
+      // Pequeno truque: se não for um dos primeiros 15, escondemos na exportação
+      // (Isso é apenas para a foto, não muda a tela do usuário)
+      const index = Array.from(dayGroups).indexOf(group);
+      if (index > 15) {
+        group.classList.add('hide-for-length');
+      }
+    });
   }
 
   const exportHeader = document.getElementById('export-header');
@@ -32,16 +48,13 @@ export async function exportToImage(elementId: string) {
       exportHeader.classList.add('flex');
     }
 
-    // Esperar renderização completa
-    await new Promise(resolve => setTimeout(resolve, 600));
+    // Delay para o navegador processar as novas classes
+    await new Promise(resolve => setTimeout(resolve, 700));
 
-    const fileName = `escala-irmaos-${format(new Date(), 'dd-MM-yyyy')}.png`;
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-    // Configurações comuns de imagem
-    const imageOptions = {
+    // 2. GERAR O ARQUIVO (PNG)
+    const blob = await toBlob(node, {
       quality: 1,
-      pixelRatio: 2,
+      pixelRatio: 2, // 2x é o ideal para WhatsApp (nítido mas não pesado)
       backgroundColor: '#ffffff',
       width: 1000,
       style: {
@@ -50,30 +63,35 @@ export async function exportToImage(elementId: string) {
         margin: '0',
         padding: '30px'
       }
-    };
+    });
 
+    if (!blob) throw new Error('Falha ao gerar arquivo de imagem');
+
+    const fileName = `escala-irmaos-${format(new Date(), 'dd-MM-yyyy')}.png`;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    // 3. SHARE (MOBILE)
     if (isMobile && navigator.share) {
-      // 📱 MOBILE: Gera BLOB para compartilhar nativamente
-      const blob = await toBlob(node, imageOptions);
-      if (!blob) throw new Error('Falha ao gerar imagem mobile');
-
-      const file = new File([blob], fileName, { type: 'image/png' });
-      const shareData = { title: 'Escala Porteiros CCB', files: [file] };
-
-      if (navigator.canShare && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
+      try {
+        const file = new File([blob], fileName, { type: 'image/png' });
+        await navigator.share({
+          files: [file],
+          title: 'Escala Porteiros'
+        });
         return;
+      } catch (e) {
+        console.warn('Share nativo falhou, tentando download...', e);
       }
     }
 
-    // 💻 PC ou FALLBACK MOBILE: Gera DataURL (Base64) - Mais seguro para nome de arquivo no PC
-    const dataUrl = await toPng(node, imageOptions);
-    if (!dataUrl) throw new Error('Falha ao gerar imagem PC');
-
+    // 4. DOWNLOAD (PC) - Técnica Robusta para Chrome/Edge no Windows
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.style.display = 'none';
-    link.href = dataUrl;
-    link.download = fileName; // Força o nome do arquivo com .png
+
+    // Configurações críticas para o PC reconhecer o PNG
+    link.href = url;
+    link.download = fileName;
+    link.dataset.downloadurl = ['image/png', link.download, link.href].join(':');
 
     document.body.appendChild(link);
     link.click();
@@ -81,16 +99,19 @@ export async function exportToImage(elementId: string) {
     // Limpeza
     setTimeout(() => {
       document.body.removeChild(link);
-    }, 500);
+      URL.revokeObjectURL(url);
+    }, 1000);
 
   } catch (err) {
-    console.error('Erro ao exportar:', err);
-    alert("Erro ao gerar imagem. Tente filtrar por um período menor.");
+    console.error('Erro na exportação:', err);
+    alert("Não foi possível gerar a imagem. Tente filtrar por um período menor (ex: 15 dias).");
   } finally {
+    // Limpar classes temporárias
     if (exportHeader) {
       exportHeader.classList.add('hidden');
       exportHeader.classList.remove('flex');
     }
     document.body.classList.remove('is-exporting');
+    dayGroups.forEach((group: any) => group.classList.remove('hide-for-length'));
   }
 }

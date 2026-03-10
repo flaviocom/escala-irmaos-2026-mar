@@ -507,6 +507,8 @@ function App() {
 
         {/* View renderizada */}
         <div className="p-4 sm:p-6 lg:p-8 flex-1 max-w-5xl mx-auto w-full bg-gray-50 pb-24" id="schedule-container">
+          {/* Contador de filtros oculto para o sistema de exportação saber se deve limitar a foto */}
+          <span id="active-filters-count" className="hidden active-filters-count">{activeFiltersCount}</span>
 
           {/* Cabeçalho de Exportação */}
           <div id="export-header" className="hidden items-center gap-3 mb-6 pb-4 border-b border-gray-200">

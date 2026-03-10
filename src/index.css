@@ -122,3 +122,8 @@ body.is-exporting .bg-white.rounded-3xl.shadow-sm {
   box-shadow: none !important;
   border-color: #f3f4f6 !important;
 }
+
+/* Oculta dias extras quando se exporta escala cheia sem filtro */
+body.is-exporting .hide-for-length {
+  display: none !important;
+}
