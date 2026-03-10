@@ -109,12 +109,11 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
     if (!hasScrolled.current && scrollRef.current && months.length > 0) {
       setTimeout(() => {
         scrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 300); // Small delay to let DOM render completely
+      }, 300);
       hasScrolled.current = true;
     }
   }, [months]);
 
-  // Find the first shift to scroll to (Today or next upcoming)
   let firstUpcomingShiftId: string | null = null;
   const upcomingShift = filteredShifts.find(s => isSameDay(s.date, today) || isAfter(s.date, today));
   if (upcomingShift) {
@@ -126,25 +125,24 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
   const ShiftBadge = ({ type }: { type: string }) => {
     if (type === 'SANTA_CEIA') {
       return (
-        <span className="px-space-2 py-space-1 inline-flex items-center gap-space-1 text-text-xs font-semibold rounded-radius-full bg-surface-subtle text-status-warning border border-status-warning">
+        <span className="px-2 py-1 inline-flex items-center gap-1 text-[10px] font-bold rounded-full bg-red-50 text-red-600 border border-red-200 uppercase tracking-tight">
           <AlertCircle className="h-3 w-3" />
           SANTA CEIA
         </span>
       );
     }
 
-    // Colors: Morning=Yellow(Amber), Afternoon=Orange/Blue, Night=Indigo
     const config = {
       'MANHÃ': { bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-100', icon: Sun },
       'TARDE': { bg: 'bg-orange-50', text: 'text-orange-600', border: 'border-orange-100', icon: CloudSun },
       'NOITE': { bg: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-100', icon: MoonStar },
-    }[type] || { bg: 'bg-surface-subtle', text: 'text-text-muted', border: 'border-border-subtle', icon: Clock };
+    }[type] || { bg: 'bg-gray-50', text: 'text-gray-600', border: 'border-gray-200', icon: Clock };
 
     const Icon = config.icon;
 
     if (type === 'TARDE') {
       return (
-        <div className="flex flex-col items-center justify-center bg-orange-50 border border-orange-100 rounded-radius-md px-space-3 py-space-1">
+        <div className="flex flex-col items-center justify-center bg-orange-50 border border-orange-100 rounded-lg px-3 py-1">
           <CloudSun className="h-4 w-4 text-orange-500 mb-0.5" />
           <span className="text-[10px] font-bold text-orange-600 leading-none">TARDE</span>
           <span className="text-[9px] font-bold text-orange-700 uppercase mt-0.5 leading-none tracking-wider">
@@ -156,7 +154,7 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
 
     return (
       <span className={clsx(
-        "px-space-2 py-space-1 inline-flex items-center gap-space-1 text-text-xs font-semibold rounded-radius-full border",
+        "px-2 py-1 inline-flex items-center gap-1 text-[10px] font-bold rounded-full border uppercase tracking-tight",
         config.bg, config.text, config.border
       )}>
         <Icon className="h-3 w-3" />
@@ -165,130 +163,113 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
     );
   };
 
-  const BrotherTag = ({ id }: { id: string }) => (
-    <span className={clsx(
-      "px-space-2 py-space-1 rounded-radius-md text-text-xs font-medium border transition-all duration-200",
-      selectedBrotherIds.includes(id)
-        ? "bg-action-primary text-text-on-brand border-action-primary shadow-md transform scale-105"
-        : "bg-white text-text-secondary border-gray-200 shadow-sm hover:border-action-primary/30 hover:shadow-md"
-    )}>
-      {getBrotherName(id)}
-    </span>
-  );
-
   if (months.length === 0) {
     return (
-      <div className="text-center py-space-16 bg-surface-card rounded-radius-2xl border border-border-default border-dashed">
-        <div className="bg-surface-subtle p-space-4 rounded-radius-full inline-block mb-space-4">
-          <Calendar className="h-8 w-8 text-text-muted" />
-        </div>
-        <h3 className="text-text-lg font-medium text-text-primary">Nenhum turno encontrado</h3>
-        <p className="text-text-secondary mt-space-1">Tente ajustar os filtros selecionados.</p>
+      <div className="text-center py-16 bg-white rounded-3xl border border-gray-200 border-dashed">
+        <Calendar className="h-8 w-8 text-gray-300 mx-auto mb-4" />
+        <h3 className="text-lg font-medium text-gray-900">Nenhum turno encontrado</h3>
+        <p className="text-gray-500 mt-1">Tente ajustar os filtros selecionados.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-space-8">
+    <div className="space-y-8">
       {months.map(([monthStr, monthShifts]) => (
-        <div key={monthStr} className="bg-surface-card rounded-radius-2xl shadow-card border border-border-default overflow-hidden">
-          <div className="bg-gray-50 px-space-6 py-space-3 border-y border-gray-200 flex items-center gap-space-3 shadow-sm my-6 rounded-lg mx-4 md:mx-0">
-            <div className="bg-action-primary/10 p-2 rounded-radius-md shadow-sm border border-action-primary/20">
-              <Calendar className="h-5 w-5 text-action-primary" />
-            </div>
-            <h3 className="text-text-lg font-bold text-text-primary capitalize tracking-tight">
+        <div key={monthStr} className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+            <Calendar className="h-5 w-5 text-action-primary" />
+            <h3 className="text-lg font-bold text-gray-900 capitalize">
               {format(parseISO(monthStr), 'MMMM yyyy', { locale: ptBR })}
             </h3>
           </div>
 
-          {/* Unified Card View (Desktop & Mobile) */}
-          <div className="space-y-3 px-4 pb-4 md:px-6 md:pb-6 relative">
+          <div className="divide-y divide-gray-50">
             {monthShifts.map((shift) => {
-              const isSelected = selectedBrotherIds.length > 0 && shift.assignedBrothers.some(id => selectedBrotherIds.includes(id));
-              const isSantaCeia = shift.type === 'SANTA_CEIA';
-
-              // Decide se aparece nos últimos 15 dias na impressão
+              const isToday = isSameDay(shift.date, today);
               const isWithin15Days = shift.date >= startOfDay(today) && shift.date <= addDays(today, 15);
-
-              // Config colors based on type
-              const typeConfig = {
-                'MANHÃ': { color: 'bg-amber-500', light: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700' },
-                'TARDE': { color: 'bg-orange-500', light: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700' },
-                'NOITE': { color: 'bg-indigo-500', light: 'bg-indigo-50', border: 'border-indigo-200', text: 'text-indigo-700' },
-                'SANTA_CEIA': { color: 'bg-red-500', light: 'bg-red-50', border: 'border-red-200', text: 'text-red-700' }
-              }[shift.type] || { color: 'bg-gray-500', light: 'bg-gray-50', border: 'border-gray-200', text: 'text-gray-700' };
 
               return (
                 <div
                   key={shift.id}
-                  id={`shift-${shift.id}`}
                   ref={shift.id === firstUpcomingShiftId ? scrollRef : null}
                   className={clsx(
-                    "group relative flex flex-row items-center gap-2 p-3 rounded-xl border transition-all duration-200 scroll-mt-[200px]",
-                    "bg-white hover:shadow-md hover:border-action-primary/30",
-                    isSelected ? "ring-2 ring-inset ring-amber-400 border-amber-400 shadow-md z-10" : "border-gray-200 shadow-sm",
+                    "group relative transition-colors scroll-mt-24",
+                    isToday && "bg-amber-50/40 border-l-4 border-l-amber-500 ring-1 ring-amber-500/10 z-10",
                     !isWithin15Days && "hide-on-export"
                   )}
                 >
-                  {/* Left Accent Border (Visual) */}
-                  <div className={clsx(
-                    "absolute left-0 top-3 bottom-3 w-1 rounded-r-full",
-                    typeConfig.color
-                  )} />
-
-                  {/* Date Box */}
-                  <div className="pl-2 shrink-0">
-                    <div className="flex flex-col w-12 h-12 rounded-lg overflow-hidden border border-gray-100 shadow-sm">
-                      <div className={clsx("h-4 flex items-center justify-center text-[9px] font-bold text-white uppercase tracking-wider", typeConfig.color)}>
-                        {format(shift.date, 'MMM', { locale: ptBR }).replace('.', '')}
-                      </div>
-                      <div className="flex-1 bg-white flex flex-col items-center justify-center">
-                        <span className="text-base font-bold text-gray-900 leading-none">
+                  <div className="flex p-4 sm:p-6 gap-4 sm:gap-6">
+                    {/* Data Side */}
+                    <div className="flex flex-col items-center justify-start min-w-[75px] sm:min-w-[85px]">
+                      {isToday && (
+                        <span className="mb-2 px-2 py-0.5 bg-amber-500 text-white text-[10px] font-black rounded-full uppercase tracking-tighter animate-pulse shadow-sm">
+                          HOJE
+                        </span>
+                      )}
+                      <div className={clsx(
+                        "w-12 h-12 sm:w-14 sm:h-14 flex flex-col items-center justify-center rounded-2xl transition-all shadow-sm",
+                        isToday ? "bg-amber-500 text-white shadow-amber-200" : "bg-blue-50 text-blue-600 border border-blue-100"
+                      )}>
+                        <span className="text-[10px] font-bold leading-none uppercase opacity-80">
+                          {format(shift.date, 'MMM', { locale: ptBR }).replace('.', '')}
+                        </span>
+                        <span className="text-xl font-black leading-none mt-1">
                           {format(shift.date, 'dd')}
                         </span>
-                        <span className="text-[9px] text-gray-500 font-medium leading-none mt-0.5">
-                          {format(shift.date, 'EEE', { locale: ptBR })}
-                        </span>
                       </div>
+                      <span className={clsx(
+                        "text-[10px] font-bold mt-2 uppercase tracking-wide",
+                        isToday ? "text-amber-700" : "text-gray-400"
+                      )}>
+                        {format(shift.date, 'EEEE', { locale: ptBR })}
+                      </span>
                     </div>
-                  </div>
 
-                  {/* Content (Shift + Participants) */}
-                  <div className="flex-1 flex flex-row flex-wrap items-center gap-2 min-w-0">
                     {/* Shift Info */}
-                    <div className="flex items-center shrink-0">
-                      <ShiftBadge type={shift.type} />
-                    </div>
-
-                    {/* Participants */}
                     <div className="flex-1 min-w-0">
-                      {isSantaCeia ? (
-                        <span className="text-text-muted italic text-xs px-1">---</span>
-                      ) : (
-                        <div className="flex flex-col gap-1">
-                          {shift.assignedBrothers.map(id => (
-                            <BrotherTag key={id} id={id} />
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <ShiftBadge type={shift.type} />
+                        {shift.type === 'SANTA_CEIA' && (
+                          <div className="h-1.5 w-1.5 rounded-full bg-red-500 animate-ping" />
+                        )}
+                      </div>
 
-                  {/* Actions / Status (Placeholder for visual balance) */}
-                  <div className="hidden md:flex items-center justify-end w-8">
-                    <div className="h-8 w-8 rounded-full hover:bg-gray-50 flex items-center justify-center text-gray-300 cursor-pointer">
-                      <div className="w-1 h-1 bg-current rounded-full mx-0.5" />
-                      <div className="w-1 h-1 bg-current rounded-full mx-0.5" />
-                      <div className="w-1 h-1 bg-current rounded-full mx-0.5" />
+                      <div className="flex flex-col gap-2.5">
+                        {shift.assignedBrothers.map((id) => {
+                          const isSelected = selectedBrotherIds.includes(id);
+                          return (
+                            <div
+                              key={`${shift.id}-${id}`}
+                              className={clsx(
+                                "flex items-center gap-4 px-4 py-3.5 rounded-2xl border transition-all duration-300",
+                                isSelected
+                                  ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200 scale-[1.03] ring-4 ring-blue-600/5"
+                                  : "bg-white text-gray-800 border-gray-100 hover:border-blue-200 shadow-sm"
+                              )}
+                            >
+                              <div className={clsx(
+                                "w-10 h-10 rounded-full flex items-center justify-center text-lg font-black shrink-0 transition-colors",
+                                isSelected ? "bg-white/20 text-white" : "bg-blue-50 text-blue-600"
+                              )}>
+                                {getBrotherName(id).charAt(0)}
+                              </div>
+                              <span className={clsx(
+                                "text-base sm:text-lg font-bold tracking-tight",
+                                isSelected ? "text-white" : "text-gray-900"
+                              )}>
+                                {getBrotherName(id)}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 </div>
               );
             })}
           </div>
-
-          {/* Legacy Views Removed - Unified View Used */}
-
         </div>
       ))}
     </div>
