@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 
 /**
  * Função para exportar a escala como imagem.
- * Agora utiliza processamento em Blob e garante o download em todos os dispositivos.
+ * Implementa suporte a compartilhamento nativo em smartphones e download no PC.
  */
 export async function exportToImage(elementId: string) {
   const node = document.getElementById(elementId);
@@ -23,42 +23,61 @@ export async function exportToImage(elementId: string) {
       exportHeader.classList.add('flex');
     }
 
-    // Pequeno delay para garantir que o DOM atualizou as classes de visualização
-    await new Promise(resolve => setTimeout(resolve, 300));
+    // Delay para garantir que o DOM atualizou as classes e imagens (logo)
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    // Gerar o Blob da imagem (PNG é mais estável para escala de texto)
+    // Gerar o Blob da imagem
     const blob = await toBlob(node, {
       quality: 1,
-      pixelRatio: 3, // Qualidade alta para impressão/leitura
+      pixelRatio: 2.5, // Equilíbrio entre qualidade e tamanho de arquivo
       backgroundColor: '#ffffff',
-      // Forçamos o layout a se comportar como desktop durante o "print"
       style: {
         transform: 'scale(1)',
-        width: '1000px', // Largura ideal para caber as 3 colunas (Data -> Turno -> Irmãos)
+        width: '1000px',
         margin: '0',
         padding: '30px'
       },
-      width: 1000,
-      filter: (domNode) => {
-        // Filtra elementos que não devem ir para a foto (como o botão flutuante)
-        return !domNode.classList?.contains('hide-on-export');
-      }
+      width: 1000
     });
 
     if (!blob) throw new Error('Falha ao gerar o arquivo de imagem.');
 
-    // Criar o link de download de forma robusta
+    const fileName = `escala-irmaos-${format(new Date(), 'dd-MM-yyyy')}.png`;
+
+    // 🆕 COMPARTILHAMENTO NATIVO (MOBILE)
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (isMobile && navigator.share) {
+      const file = new File([blob], fileName, { type: 'image/png' });
+
+      const shareData = {
+        title: 'Escala de Porteiros',
+        text: 'Segue a escala de serviço.',
+        files: [file]
+      };
+
+      if (navigator.canShare && navigator.canShare(shareData)) {
+        try {
+          await navigator.share(shareData);
+          // Sucesso no compartilhamento nativo!
+          return;
+        } catch (err) {
+          // Se o usuário cancelar ou o share falhar, continuamos para o download como fallback
+          if ((err as Error).name !== 'AbortError') {
+            console.error('Erro no compartilhamento nativo:', err);
+          }
+        }
+      }
+    }
+
+    // ⬇️ DOWNLOAD TRADICIONAL (PC ou fallback mobile)
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-
-    // Nome do arquivo sem espaços ou caracteres especiais para evitar problemas em mobiles
-    const fileName = `escala-irmaos-${format(new Date(), 'dd-MM-yyyy')}.png`;
 
     link.style.display = 'none';
     link.href = url;
     link.download = fileName;
 
-    // Obrigatório no Firefox e alguns Androids
     document.body.appendChild(link);
     link.click();
 
@@ -70,7 +89,7 @@ export async function exportToImage(elementId: string) {
 
   } catch (err) {
     console.error('Erro ao exportar:', err);
-    alert("Ocorreu um erro ao gerar a escala. Se o problema persistir, tente tirar um print da tela.");
+    alert("Ocorreu um erro ao gerar a escala. Tente novamente ou tire um print da tela.");
   } finally {
     // Restaurar interface original
     if (exportHeader) {

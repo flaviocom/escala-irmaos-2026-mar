@@ -41,7 +41,6 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
         const query = normalize(dateSearchQuery).trim();
         let isDateRangeText = false;
 
-        // Skip text search if it matches the range exactly (avoid redundancy)
         if (dateRange?.start && dateRange?.end) {
           const rangeStr = isSameDay(dateRange.start, dateRange.end)
             ? format(dateRange.start, 'dd/MM/yyyy')
@@ -104,7 +103,6 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
     return Object.entries(groups).sort((a, b) => a[0].localeCompare(b[0]));
   }, [filteredShifts]);
 
-  // Scroll to today on mount
   useEffect(() => {
     if (!hasScrolled.current && scrollRef.current && months.length > 0) {
       setTimeout(() => {
@@ -187,9 +185,7 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
           <div className="divide-y divide-gray-50">
             {monthShifts.map((shift) => {
               const isToday = isSameDay(shift.date, today);
-              const isWithin15Days = shift.date >= startOfDay(today) && shift.date <= addDays(today, 15);
 
-              // Config colors based on type for the Date Box
               const typeConfig = {
                 'MANHÃ': { bg: 'bg-amber-500', text: 'text-white', sub: 'text-amber-700', border: 'border-amber-200' },
                 'TARDE': { bg: 'bg-orange-500', text: 'text-white', sub: 'text-orange-700', border: 'border-orange-200' },
@@ -204,12 +200,10 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
                   id={shift.id}
                   className={clsx(
                     "group relative transition-colors scroll-mt-24",
-                    isToday && "bg-amber-50/40 border-l-4 border-l-amber-500 ring-1 ring-amber-500/10 z-10",
-                    !isWithin15Days && "hide-on-export"
+                    isToday && "bg-amber-50/40 border-l-4 border-l-amber-500 ring-1 ring-amber-500/10 z-10"
                   )}
                 >
                   <div className="flex p-4 sm:p-6 gap-4 sm:gap-8">
-                    {/* Data Side */}
                     <div className="flex flex-col items-center justify-start min-w-[85px] sm:min-w-[100px]">
                       {isToday && (
                         <span className="mb-2 px-2 py-0.5 bg-amber-500 text-white text-[10px] font-black rounded-full uppercase tracking-tighter animate-pulse shadow-sm">
@@ -235,7 +229,6 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
                       </span>
                     </div>
 
-                    {/* Shift Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-4">
                         <ShiftBadge type={shift.type} />
