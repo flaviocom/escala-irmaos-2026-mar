@@ -112,38 +112,56 @@ body.is-exporting .hide-on-export {
 body.is-exporting #schedule-container {
   max-width: none !important;
   width: 1000px !important;
-  padding: 40px !important;
+  padding: 50px !important;
   margin: 0 !important;
   background-color: #ffffff !important;
   display: block !important;
-  /* Re-calcula layout bloqueado */
 }
 
-/* Oculta dias excedentes se não houver filtro (evita bug de altura infinita) */
+/* Evita que os nomes dos irmãos fiquem estendidos demais horizontalmente */
+body.is-exporting .flex-1.min-w-0 {
+  max-width: 650px !important;
+}
+
+/* Oculta dias excedentes se passar de 20 (evita bug de altura infinita) */
 body.limit-export .export-item:nth-child(n+21) {
   display: none !important;
 }
 
-/* Aumenta contraste visual para quem tem dificuldade de leitura */
+/* ALTO CONTRASTE PARA EXPORTAÇÃO */
 body.is-exporting .text-gray-900,
 body.is-exporting .text-gray-800 {
   color: #000000 !important;
+  font-weight: 700 !important;
 }
 
 body.is-exporting .text-gray-500,
 body.is-exporting .text-gray-400 {
-  color: #374151 !important;
-  /* gray-700 para dar contraste */
+  color: #111827 !important;
+  /* gray-900 para destacar */
 }
 
+/* Separadores de dias com muito destaque */
+body.is-exporting .divide-gray-50,
 body.is-exporting .divide-gray-200 {
-  border-color: #9CA3AF !important;
-  /* gray-400 para dividir bem os dias */
+  border-color: #9ca3af !important;
+  /* gray-400 */
+}
+
+body.is-exporting .export-item {
+  border-bottom: 2px solid #9ca3af !important;
+  /* gray-400 */
 }
 
 body.is-exporting .shadow-sm,
 body.is-exporting .shadow-md {
   box-shadow: none !important;
-  /* Remove sombras que podem virar manchas na foto */
-  border-color: #E5E7EB !important;
+  border: 1px solid #d1d5db !important;
+  /* gray-300 */
+}
+
+/* Cabeçalho do Mês com mais contraste na foto */
+body.is-exporting .bg-gray-50 {
+  background-color: #f9fafb !important;
+  border-bottom: 3px solid #4f46e5 !important;
 }
