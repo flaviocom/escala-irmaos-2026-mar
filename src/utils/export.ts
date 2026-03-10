@@ -1,9 +1,9 @@
-import { toBlob } from 'html-to-image';
+import { toPng, toBlob } from 'html-to-image';
 import { format } from 'date-fns';
 
 /**
  * Função para exportar a escala como imagem.
- * Ajustada para evitar imagens infinitamente longas e falhas no PC.
+ * Versão ultra-compatível para PC (download com nome) e Mobile (compartilhamento).
  */
 export async function exportToImage(elementId: string) {
   const node = document.getElementById(elementId);
@@ -12,13 +12,13 @@ export async function exportToImage(elementId: string) {
     return;
   }
 
-  // Se a escala for MUITO longa (mais de 100 turnos), avisar o usuário
+  // Trava para escalas gigantes que travam o navegador
   const shiftElements = node.querySelectorAll('.group.relative');
   if (shiftElements.length > 50) {
     const confirmLong = confirm(
-      `Você está tentando gerar uma imagem com ${shiftElements.length} dias de escala. \n\n` +
-      "Isso pode demorar ou falhar no celular. \n\n" +
-      "Deseja continuar? (Dica: Use os filtros de 'Mês' ou '15 dias' para imagens menores)."
+      `Escala muito longa (${shiftElements.length} dias). \n\n` +
+      "Isso pode falhar no PC ou Celular. \n\n" +
+      "Deseja continuar? Recomenda-se filtrar por 'Mês' antes."
     );
     if (!confirmLong) return;
   }
@@ -32,41 +32,33 @@ export async function exportToImage(elementId: string) {
       exportHeader.classList.add('flex');
     }
 
-    // Delay maior para garantir renderização de fontes e logos
-    await new Promise(resolve => setTimeout(resolve, 800));
-
-    // Gerar o Blob da imagem
-    // Reduzimos o pixelRatio para 2 para evitar estourar o limite de memória do navegador em listas longas
-    const blob = await toBlob(node, {
-      quality: 0.95,
-      pixelRatio: 2,
-      backgroundColor: '#ffffff',
-      style: {
-        transform: 'none',
-        width: '1000px', // Força largura Desktop
-        maxWidth: '1000px',
-        margin: '0',
-        padding: '40px',
-        // Reseta restrições de layout que podem vir do Tailwind
-        display: 'block',
-        height: 'auto'
-      },
-      width: 1000
-    });
-
-    if (!blob) throw new Error('Falha ao gerar o arquivo de imagem.');
+    // Esperar renderização completa
+    await new Promise(resolve => setTimeout(resolve, 600));
 
     const fileName = `escala-irmaos-${format(new Date(), 'dd-MM-yyyy')}.png`;
-
-    // 📱 MOBILE: Compartilhamento Nativo
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
+    // Configurações comuns de imagem
+    const imageOptions = {
+      quality: 1,
+      pixelRatio: 2,
+      backgroundColor: '#ffffff',
+      width: 1000,
+      style: {
+        transform: 'none',
+        width: '1000px',
+        margin: '0',
+        padding: '30px'
+      }
+    };
+
     if (isMobile && navigator.share) {
+      // 📱 MOBILE: Gera BLOB para compartilhar nativamente
+      const blob = await toBlob(node, imageOptions);
+      if (!blob) throw new Error('Falha ao gerar imagem mobile');
+
       const file = new File([blob], fileName, { type: 'image/png' });
-      const shareData = {
-        title: 'Escala de Porteiros',
-        files: [file]
-      };
+      const shareData = { title: 'Escala Porteiros CCB', files: [file] };
 
       if (navigator.canShare && navigator.canShare(shareData)) {
         await navigator.share(shareData);
@@ -74,23 +66,26 @@ export async function exportToImage(elementId: string) {
       }
     }
 
-    // 💻 PC: Download Direto
-    const url = URL.createObjectURL(blob);
+    // 💻 PC ou FALLBACK MOBILE: Gera DataURL (Base64) - Mais seguro para nome de arquivo no PC
+    const dataUrl = await toPng(node, imageOptions);
+    if (!dataUrl) throw new Error('Falha ao gerar imagem PC');
+
     const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
+    link.style.display = 'none';
+    link.href = dataUrl;
+    link.download = fileName; // Força o nome do arquivo com .png
+
     document.body.appendChild(link);
     link.click();
 
-    // Limpeza rigorosa
+    // Limpeza
     setTimeout(() => {
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
     }, 500);
 
   } catch (err) {
     console.error('Erro ao exportar:', err);
-    alert("A imagem é muito grande para este aparelho. \n\nTente filtrar por 'Mês' ou '15 dias' antes de enviar.");
+    alert("Erro ao gerar imagem. Tente filtrar por um período menor.");
   } finally {
     if (exportHeader) {
       exportHeader.classList.add('hidden');
