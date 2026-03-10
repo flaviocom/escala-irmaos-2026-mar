@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useRef } from 'react';
-import { format, isSameMonth, parseISO, startOfMonth, isWithinInterval, isSameDay, startOfToday, isAfter } from 'date-fns';
+import { format, isSameMonth, parseISO, startOfMonth, isWithinInterval, isSameDay, startOfToday, isAfter, startOfDay, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Shift, BROTHERS } from '../types/scheduler';
 import { clsx } from 'clsx';
@@ -67,7 +67,12 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
             dateStrNoZeroFull.includes(query) ||
             monthName.includes(query);
 
-          if (!matchesDate && !dayName.includes(query)) {
+          const matchesBrother = shift.assignedBrothers.some(id => {
+            const brother = BROTHERS.find(b => b.id === id);
+            return brother && normalize(brother.name).includes(query);
+          });
+
+          if (!matchesDate && !dayName.includes(query) && !matchesBrother) {
             return false;
           }
         }
@@ -197,10 +202,13 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
           </div>
 
           {/* Unified Card View (Desktop & Mobile) */}
-          <div className="space-y-3 px-4 pb-4 md:px-6 md:pb-6">
+          <div className="space-y-3 px-4 pb-4 md:px-6 md:pb-6 relative">
             {monthShifts.map((shift) => {
               const isSelected = selectedBrotherIds.length > 0 && shift.assignedBrothers.some(id => selectedBrotherIds.includes(id));
               const isSantaCeia = shift.type === 'SANTA_CEIA';
+
+              // Decide se aparece nos últimos 15 dias na impressão
+              const isWithin15Days = shift.date >= startOfDay(today) && shift.date <= addDays(today, 15);
 
               // Config colors based on type
               const typeConfig = {
@@ -218,7 +226,8 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
                   className={clsx(
                     "group relative flex flex-row items-center gap-2 p-3 rounded-xl border transition-all duration-200 scroll-mt-[200px]",
                     "bg-white hover:shadow-md hover:border-action-primary/30",
-                    isSelected ? "ring-2 ring-inset ring-amber-400 border-amber-400 shadow-md z-10" : "border-gray-200 shadow-sm"
+                    isSelected ? "ring-2 ring-inset ring-amber-400 border-amber-400 shadow-md z-10" : "border-gray-200 shadow-sm",
+                    !isWithin15Days && "hide-on-export"
                   )}
                 >
                   {/* Left Accent Border (Visual) */}

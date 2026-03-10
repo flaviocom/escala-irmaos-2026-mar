@@ -7,7 +7,7 @@ import { StatsView } from './components/StatsView';
 import { ValidationView } from './components/ValidationView';
 import { MultiSelect } from './components/MultiSelect';
 import { DateSearch } from './components/DateSearch';
-import { Calendar, Download, Filter, X, LayoutGrid, BarChart3, ShieldCheck, Menu, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { Calendar, Download, Filter, X, LayoutGrid, BarChart3, ShieldCheck, Menu, SlidersHorizontal, ChevronDown, MessageCircle } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { clsx } from 'clsx';
@@ -254,6 +254,16 @@ function App() {
             <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         </header>
+
+        {/* Floating Export Button for Mobile (just icons) */}
+        <button
+          onClick={handleExport}
+          className="md:hidden hide-on-export fixed bottom-6 right-6 z-40 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-full p-4 shadow-lg shadow-[#25D366]/30 transition-transform active:scale-95 flex items-center justify-center gap-1.5"
+          title="Download p/ WhatsApp"
+        >
+          <Download className="h-5 w-5" />
+          <MessageCircle className="h-5 w-5 fill-current" />
+        </button>
 
         {/* View renderizada (Container onde a foto será tirada) */}
         <div className="p-4 sm:p-6 lg:p-8 flex-1 max-w-5xl mx-auto w-full bg-gray-50" id="schedule-container">

@@ -16,6 +16,9 @@ export async function exportToImage(elementId: string) {
       exportHeader.classList.add('flex');
     }
 
+    // Add class to hide elements that shouldn't be exported
+    document.body.classList.add('is-exporting');
+
     // Force styles for rendering (temporarily remove scroll limits, fix bg, etc)
     const prevMaxHeight = node.style.maxHeight;
     const prevOverflow = node.style.overflow;
@@ -23,11 +26,14 @@ export async function exportToImage(elementId: string) {
     // Create the image
     const dataUrl = await toJpeg(node, {
       quality: 0.95,
+      pixelRatio: 2, // Garante que não fique pixelado no zoom
+      width: 800, // Força a largura do canvas para não quebrar layout de celular
       backgroundColor: '#f9fafb', // matches gray-50 or custom background
       style: {
         margin: '0',
         padding: '24px',
-        maxWidth: '800px'
+        width: '800px', // Força a renderização com layout Desktop
+        maxWidth: 'none'
       }
     });
 
@@ -36,6 +42,9 @@ export async function exportToImage(elementId: string) {
       exportHeader.classList.add('hidden');
       exportHeader.classList.remove('flex');
     }
+
+    // Remove exporting class
+    document.body.classList.remove('is-exporting');
 
     // Create a download link
     const link = document.createElement('a');

@@ -88,3 +88,7 @@ body {
   color: var(--text-primary);
   font-family: system-ui, -apple-system, sans-serif;
 }
+
+body.is-exporting .hide-on-export {
+  display: none !important;
+}
