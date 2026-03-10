@@ -265,7 +265,7 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
                       {isSantaCeia ? (
                         <span className="text-text-muted italic text-xs px-1">---</span>
                       ) : (
-                        <div className="flex flex-wrap gap-1.5">
+                        <div className="flex flex-col gap-1">
                           {shift.assignedBrothers.map(id => (
                             <BrotherTag key={id} id={id} />
                           ))}
