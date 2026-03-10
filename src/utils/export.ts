@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 
 /**
  * Função para exportar a escala como imagem.
- * Implementa suporte a compartilhamento nativo em smartphones e download no PC.
+ * Ajustada para evitar imagens infinitamente longas e falhas no PC.
  */
 export async function exportToImage(elementId: string) {
   const node = document.getElementById(elementId);
@@ -12,30 +12,44 @@ export async function exportToImage(elementId: string) {
     return;
   }
 
-  // Previne cliques duplos e indica processamento
+  // Se a escala for MUITO longa (mais de 100 turnos), avisar o usuário
+  const shiftElements = node.querySelectorAll('.group.relative');
+  if (shiftElements.length > 50) {
+    const confirmLong = confirm(
+      `Você está tentando gerar uma imagem com ${shiftElements.length} dias de escala. \n\n` +
+      "Isso pode demorar ou falhar no celular. \n\n" +
+      "Deseja continuar? (Dica: Use os filtros de 'Mês' ou '15 dias' para imagens menores)."
+    );
+    if (!confirmLong) return;
+  }
+
   const exportHeader = document.getElementById('export-header');
   document.body.classList.add('is-exporting');
 
   try {
-    // Revelar cabeçalho CCB para a foto
     if (exportHeader) {
       exportHeader.classList.remove('hidden');
       exportHeader.classList.add('flex');
     }
 
-    // Delay para garantir que o DOM atualizou as classes e imagens (logo)
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Delay maior para garantir renderização de fontes e logos
+    await new Promise(resolve => setTimeout(resolve, 800));
 
     // Gerar o Blob da imagem
+    // Reduzimos o pixelRatio para 2 para evitar estourar o limite de memória do navegador em listas longas
     const blob = await toBlob(node, {
-      quality: 1,
-      pixelRatio: 2.5, // Equilíbrio entre qualidade e tamanho de arquivo
+      quality: 0.95,
+      pixelRatio: 2,
       backgroundColor: '#ffffff',
       style: {
-        transform: 'scale(1)',
-        width: '1000px',
+        transform: 'none',
+        width: '1000px', // Força largura Desktop
+        maxWidth: '1000px',
         margin: '0',
-        padding: '30px'
+        padding: '40px',
+        // Reseta restrições de layout que podem vir do Tailwind
+        display: 'block',
+        height: 'auto'
       },
       width: 1000
     });
@@ -44,54 +58,40 @@ export async function exportToImage(elementId: string) {
 
     const fileName = `escala-irmaos-${format(new Date(), 'dd-MM-yyyy')}.png`;
 
-    // 🆕 COMPARTILHAMENTO NATIVO (MOBILE)
+    // 📱 MOBILE: Compartilhamento Nativo
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
     if (isMobile && navigator.share) {
       const file = new File([blob], fileName, { type: 'image/png' });
-
       const shareData = {
         title: 'Escala de Porteiros',
-        text: 'Segue a escala de serviço.',
         files: [file]
       };
 
       if (navigator.canShare && navigator.canShare(shareData)) {
-        try {
-          await navigator.share(shareData);
-          // Sucesso no compartilhamento nativo!
-          return;
-        } catch (err) {
-          // Se o usuário cancelar ou o share falhar, continuamos para o download como fallback
-          if ((err as Error).name !== 'AbortError') {
-            console.error('Erro no compartilhamento nativo:', err);
-          }
-        }
+        await navigator.share(shareData);
+        return;
       }
     }
 
-    // ⬇️ DOWNLOAD TRADICIONAL (PC ou fallback mobile)
+    // 💻 PC: Download Direto
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-
-    link.style.display = 'none';
     link.href = url;
     link.download = fileName;
-
     document.body.appendChild(link);
     link.click();
 
-    // Limpeza
+    // Limpeza rigorosa
     setTimeout(() => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-    }, 200);
+    }, 500);
 
   } catch (err) {
     console.error('Erro ao exportar:', err);
-    alert("Ocorreu um erro ao gerar a escala. Tente novamente ou tire um print da tela.");
+    alert("A imagem é muito grande para este aparelho. \n\nTente filtrar por 'Mês' ou '15 dias' antes de enviar.");
   } finally {
-    // Restaurar interface original
     if (exportHeader) {
       exportHeader.classList.add('hidden');
       exportHeader.classList.remove('flex');

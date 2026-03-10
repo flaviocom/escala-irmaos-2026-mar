@@ -5,36 +5,51 @@
 :root {
   /* CORES */
   /* Texto */
-  --text-primary: #111827; /* gray-900 */
-  --text-secondary: #4B5563; /* gray-600 */
-  --text-muted: #9CA3AF; /* gray-400 */
+  --text-primary: #111827;
+  /* gray-900 */
+  --text-secondary: #4B5563;
+  /* gray-600 */
+  --text-muted: #9CA3AF;
+  /* gray-400 */
   --text-on-dark: #FFFFFF;
   --text-on-brand: #FFFFFF;
 
   /* Superfícies */
-  --surface-page: #F3F4F6; /* gray-100 */
+  --surface-page: #F3F4F6;
+  /* gray-100 */
   --surface-section: #FFFFFF;
   --surface-card: #FFFFFF;
-  --surface-subtle: #F9FAFB; /* gray-50 */
+  --surface-subtle: #F9FAFB;
+  /* gray-50 */
   --surface-elevated: #FFFFFF;
 
   /* Ações */
-  --action-primary: #4F46E5; /* indigo-600 */
-  --action-primary-hover: #4338CA; /* indigo-700 */
-  --action-primary-active: #3730A3; /* indigo-800 */
+  --action-primary: #4F46E5;
+  /* indigo-600 */
+  --action-primary-hover: #4338CA;
+  /* indigo-700 */
+  --action-primary-active: #3730A3;
+  /* indigo-800 */
   --action-secondary: #FFFFFF;
-  --action-strong: #111827; /* gray-900 */
+  --action-strong: #111827;
+  /* gray-900 */
   --action-strong-hover: #000000;
 
   /* Bordas */
-  --border-default: #E5E7EB; /* gray-200 */
-  --border-subtle: #F3F4F6; /* gray-100 */
-  --border-focus: #4F46E5; /* indigo-600 */
+  --border-default: #E5E7EB;
+  /* gray-200 */
+  --border-subtle: #F3F4F6;
+  /* gray-100 */
+  --border-focus: #4F46E5;
+  /* indigo-600 */
 
   /* Status */
-  --status-success: #10B981; /* emerald-500 */
-  --status-warning: #F59E0B; /* amber-500 */
-  --status-error: #EF4444; /* red-500 */
+  --status-success: #10B981;
+  /* emerald-500 */
+  --status-warning: #F59E0B;
+  /* amber-500 */
+  --status-error: #EF4444;
+  /* red-500 */
 
   /* ESPAÇAMENTO */
   --space-1: 4px;
@@ -91,4 +106,19 @@ body {
 
 body.is-exporting .hide-on-export {
   display: none !important;
+}
+
+/* Garante que o container da escala se estenda para a largura total do print (1000px) */
+body.is-exporting #schedule-container {
+  max-width: none !important;
+  width: 1000px !important;
+  padding: 40px !important;
+  margin: 0 !important;
+  background-color: #ffffff !important;
+}
+
+/* Evita que sombras e bordas de cards fiquem cortadas no snapshot */
+body.is-exporting .bg-white.rounded-3xl.shadow-sm {
+  box-shadow: none !important;
+  border-color: #f3f4f6 !important;
 }
