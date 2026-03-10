@@ -24,18 +24,19 @@ export async function exportToImage(elementId: string) {
     // e para as imagens e fontes da página estabilizarem.
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    // 3. Capturar a imagem com uma base FÍSICA maior (1500px) e pixel ratio moderado 
-    // (Altos pixelRatios quebram a engine do canvas mobile e causam o "serrilhado" ou baixa qualidade no WhatsApp)
+    // 3. Capturar a imagem com uma base FÍSICA moderada (800px) e pixel ratio normal (2x) 
+    // Usamos px absolutos no CSS ao invés de REM para garantir que as fontes sejam 
+    // rasterizadas como vetores perfeitos no mobile e sem serrilhados causados por DPI virtual.
     const blob = await toBlob(node, {
       quality: 1.0,
       pixelRatio: 2,
       backgroundColor: '#ffffff',
-      width: 1500,
+      width: 800,
       style: {
         transform: 'none',
-        width: '1500px',
+        width: '800px',
         margin: '0',
-        padding: '60px',
+        padding: '40px',
         display: 'block'
       }
     });
