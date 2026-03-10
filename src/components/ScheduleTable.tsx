@@ -102,8 +102,8 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
       // Acha o primeiro compromisso a partir de hoje
       const upcomingIndex = result.findIndex(s => isSameDay(s.date, today) || isAfter(s.date, today));
       const startIndex = upcomingIndex >= 0 ? upcomingIndex : 0;
-      // Corta na origem para no máximo 10 itens!
-      result = result.slice(startIndex, startIndex + 10);
+      // Corta na origem para no máximo 5 itens!
+      result = result.slice(startIndex, startIndex + 5);
     }
     return result;
   }, [filteredShifts, isExporting, today]);
