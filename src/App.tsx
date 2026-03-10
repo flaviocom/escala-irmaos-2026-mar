@@ -363,15 +363,15 @@ function App() {
             className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <div className="relative w-full flex flex-col">
-            <div className="flex justify-end pr-4 pb-4">
-              <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="p-1 text-white/90 hover:text-white transition-colors"
-              >
-                <X className="w-9 h-9 stroke-[1.5px]" />
-              </button>
-            </div>
+          <div className="relative w-full flex flex-col pt-12">
+            {/* Botão X em destaque e vermelho acima de FILTROS E OPCOES */}
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="absolute top-2 right-6 z-50 bg-red-500 text-white p-2.5 rounded-full shadow-lg border-2 border-white transition-transform active:scale-90 flex items-center justify-center"
+              title="Fechar filtros"
+            >
+              <X className="w-7 h-7 stroke-[3px]" />
+            </button>
 
             <div className="relative w-full bg-white shadow-2xl rounded-t-[32px] flex flex-col animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-hidden">
               <div className="w-full h-8 flex items-center justify-center shrink-0">
@@ -427,6 +427,31 @@ function App() {
                 <span>Filtros {activeFiltersCount > 0 && `(${activeFiltersCount})`}</span>
               </button>
             </div>
+          </div>
+
+          {/* 🆕 C: Barra de filtros rápidos REATIVADA no mobile */}
+          <div className="px-3 pb-2 flex gap-2 overflow-x-auto scrollbar-hide">
+            {[
+              { label: '15 dias', type: '15days' as const },
+              { label: 'Esta Semana', type: 'week' as const },
+              { label: 'Este Mês', type: 'month' as const },
+            ].map(({ label, type }) => (
+              <button
+                key={type}
+                onClick={() => handleQuickFilter(type)}
+                className="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-700 transition-all whitespace-nowrap"
+              >
+                {label}
+              </button>
+            ))}
+            {(activeFiltersCount > 0 || showMyShiftsOnly) && (
+              <button
+                onClick={clearFilters}
+                className="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold bg-red-100 text-red-600 hover:bg-red-200 transition-all whitespace-nowrap"
+              >
+                ✕ Limpar
+              </button>
+            )}
           </div>
         </header>
 

@@ -124,42 +124,6 @@ export const DateSearch: React.FC<DateSearchProps> = ({ value, onChange, onDateR
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-        <button
-          onClick={() => handleQuickAction('15days')}
-          className={clsx(
-            "px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap shadow-sm border",
-            activeFilter === '15days'
-              ? "bg-action-primary text-text-on-brand border-action-primary"
-              : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-black"
-          )}
-        >
-          Próximos 15 dias
-        </button>
-        <button
-          onClick={() => handleQuickAction('week')}
-          className={clsx(
-            "px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap shadow-sm border",
-            activeFilter === 'week'
-              ? "bg-action-primary text-text-on-brand border-action-primary"
-              : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-black"
-          )}
-        >
-          Esta Semana
-        </button>
-        <button
-          onClick={() => handleQuickAction('month')}
-          className={clsx(
-            "px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap shadow-sm border",
-            activeFilter === 'month'
-              ? "bg-action-primary text-text-on-brand border-action-primary"
-              : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-black"
-          )}
-        >
-          Este Mês
-        </button>
-      </div>
     </div>
   );
 };
