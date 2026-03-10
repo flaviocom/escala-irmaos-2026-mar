@@ -253,9 +253,10 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
                               className={clsx(
                                 "flex items-center gap-4 px-4 py-3.5 rounded-2xl border transition-all duration-300",
                                 isSelected
-                                  ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200 scale-[1.03] ring-4 ring-blue-600/5"
+                                  ? `${typeConfig.bg} text-white shadow-md scale-[1.03] ring-4 ring-offset-2 ring-transparent`
                                   : "bg-white text-gray-800 border-gray-100 hover:border-blue-200 shadow-sm"
                               )}
+                              style={isSelected ? { borderColor: 'rgba(255,255,255,0.3)' } : {}}
                             >
                               <div className={clsx(
                                 "w-10 h-10 rounded-full flex items-center justify-center text-lg font-black shrink-0 transition-colors",

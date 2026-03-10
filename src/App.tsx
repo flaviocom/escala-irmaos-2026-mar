@@ -26,9 +26,16 @@ function App() {
   const [myBrotherId, setMyBrotherId] = useState<string | null>(() => {
     return localStorage.getItem('myBrotherId');
   });
-  const [showMyShiftsOnly, setShowMyShiftsOnly] = useState(false);
+  const [showMyShiftsOnly, setShowMyShiftsOnly] = useState<boolean>(() => {
+    return localStorage.getItem('showMyShiftsOnly') === 'true';
+  });
   const [showBrotherPicker, setShowBrotherPicker] = useState(false);
   const [brotherSearch, setBrotherSearch] = useState('');
+
+  // Persistir estado do filtro
+  useEffect(() => {
+    localStorage.setItem('showMyShiftsOnly', showMyShiftsOnly.toString());
+  }, [showMyShiftsOnly]);
 
   useEffect(() => {
     const newShifts = generateSchedule();
@@ -364,13 +371,13 @@ function App() {
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <div className="relative w-full flex flex-col pt-12">
-            {/* Botão X em destaque e vermelho acima de FILTROS E OPCOES */}
+            {/* Botão X em destaque e vermelho posicionado corretamente */}
             <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="absolute top-2 right-6 z-50 bg-red-500 text-white p-2.5 rounded-full shadow-lg border-2 border-white transition-transform active:scale-90 flex items-center justify-center"
+              className="absolute top-4 right-4 z-50 bg-red-500 text-white p-2 rounded-full shadow-lg border-2 border-white transition-transform active:scale-90 flex items-center justify-center"
               title="Fechar filtros"
             >
-              <X className="w-7 h-7 stroke-[3px]" />
+              <X className="w-6 h-6 stroke-[3.5px]" />
             </button>
 
             <div className="relative w-full bg-white shadow-2xl rounded-t-[32px] flex flex-col animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-hidden">
