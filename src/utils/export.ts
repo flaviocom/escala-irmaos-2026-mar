@@ -3,72 +3,28 @@ import { format } from 'date-fns';
 
 /**
  * Função para exportar a escala como imagem.
+ * Agora o ScheduleTable em si se encarrega de fatiar para 10 itens 
+ * no momento do click via props "isExporting". 
  */
 export async function exportToImage(elementId: string) {
   const node = document.getElementById(elementId);
   if (!node) return;
 
-  // 1. Identificar se houver filtros de mês ou data (filtros que limitam o tempo)
-  const activeFilters = parseInt(document.getElementById('active-filters-count')?.textContent || "0");
-
-  // 2. Contar itens na escala
-  const allItems = node.querySelectorAll('.export-item');
-  const totalItems = allItems.length;
-
-  // 3. Regra de Ouro: Se a imagem for ficar muito grande (mais de 25 dias), 
-  // nós SEMPRE limitamos para os primeiros 20 dias para evitar a "tira infinita".
-  let forceLimit = false;
-
-  if (totalItems > 25) {
-    forceLimit = true;
-    const confirmLimit = confirm(
-      `Escala muito longa (${totalItems} dias). \n\n` +
-      "Para que a foto fique nítida e legível no WhatsApp, vamos gerar apenas os primeiros 20 dias. \n\n" +
-      "Dica: Para ver o mês inteiro, use o filtro de 'Mês' antes de exportar."
-    );
-    if (!confirmLimit) return;
-  }
-
-  // 4. Iniciar modo de exportação
+  // 1. Iniciar modo de exportação visual (CSS)
   document.body.classList.add('is-exporting');
-
-  let itemsToHide: HTMLElement[] = [];
-  let containersToHide: HTMLElement[] = [];
-
   const exportHeader = document.getElementById('export-header');
 
   try {
-    if (forceLimit) {
-      // 5. Ocultar manualmente os dias após o limite no DOM vivo, para o html-to-image respeitar de verdade
-      allItems.forEach((el, index) => {
-        if (index >= 20) {
-          const htmlEl = el as HTMLElement;
-          htmlEl.style.setProperty('display', 'none', 'important');
-          itemsToHide.push(htmlEl);
-        }
-      });
-
-      // Ocultar os contêineres de meses que ficaram vazios após o corte
-      const monthContainers = node.querySelectorAll('.month-container');
-      monthContainers.forEach(container => {
-        const visibleItems = Array.from(container.querySelectorAll('.export-item'))
-          .filter(el => (el as HTMLElement).style.display !== 'none');
-        if (visibleItems.length === 0) {
-          const htmlContainer = container as HTMLElement;
-          htmlContainer.style.setProperty('display', 'none', 'important');
-          containersToHide.push(htmlContainer);
-        }
-      });
-    }
-
     if (exportHeader) {
       exportHeader.classList.remove('hidden');
       exportHeader.classList.add('flex');
     }
 
-    // Esperar um pouco mais para garantir que o layout CSS do "is-exporting" aplicou
+    // 2. Dar tempo suficiente para o React terminar de "fatiar" a lista de dias 
+    // e para as imagens e fontes da página estabilizarem.
     await new Promise(resolve => setTimeout(resolve, 800));
 
+    // 3. Capturar a imagem limpa e focada no que o React gerou (exatamente os 10 compromissos)
     const blob = await toBlob(node, {
       quality: 0.95,
       pixelRatio: 2,
@@ -116,13 +72,6 @@ export async function exportToImage(elementId: string) {
       exportHeader.classList.add('hidden');
       exportHeader.classList.remove('flex');
     }
-
-    // Restaurar a visibilidade original dos itens ocultados manualmente
-    if (forceLimit) {
-      itemsToHide.forEach(el => el.style.removeProperty('display'));
-      containersToHide.forEach(el => el.style.removeProperty('display'));
-    }
-
     document.body.classList.remove('is-exporting');
   }
 }

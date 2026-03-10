@@ -529,6 +529,7 @@ function App() {
                 selectedMonthStrs={selectedMonthStrs}
                 dateSearchQuery={dateSearchQuery}
                 dateRange={dateRange}
+                isExporting={isGenerating}
               />
             </div>
           )}

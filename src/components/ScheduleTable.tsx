@@ -11,6 +11,7 @@ interface ScheduleTableProps {
   selectedMonthStrs: string[];
   dateSearchQuery?: string;
   dateRange?: { start: Date | null; end: Date | null } | null;
+  isExporting?: boolean;
 }
 
 export const ScheduleTable: React.FC<ScheduleTableProps> = ({
@@ -18,13 +19,15 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
   selectedBrotherIds,
   selectedMonthStrs,
   dateSearchQuery,
-  dateRange
+  dateRange,
+  isExporting
 }) => {
   const today = startOfToday();
   const scrollRef = useRef<HTMLDivElement>(null);
   const hasScrolled = useRef(false);
 
   const filteredShifts = useMemo(() => {
+    // ... logic remains unmodified for filteredShifts
     const normalize = (val: string) =>
       val.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
@@ -93,15 +96,27 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
     });
   }, [shifts, selectedBrotherIds, selectedMonthStrs, dateSearchQuery, dateRange]);
 
+  const finalShifts = useMemo(() => {
+    let result = filteredShifts;
+    if (isExporting) {
+      // Acha o primeiro compromisso a partir de hoje
+      const upcomingIndex = result.findIndex(s => isSameDay(s.date, today) || isAfter(s.date, today));
+      const startIndex = upcomingIndex >= 0 ? upcomingIndex : 0;
+      // Corta na origem para no máximo 10 itens!
+      result = result.slice(startIndex, startIndex + 10);
+    }
+    return result;
+  }, [filteredShifts, isExporting, today]);
+
   const months = useMemo(() => {
     const groups: Record<string, Shift[]> = {};
-    filteredShifts.forEach(shift => {
+    finalShifts.forEach(shift => {
       const key = startOfMonth(shift.date).toISOString();
       if (!groups[key]) groups[key] = [];
       groups[key].push(shift);
     });
     return Object.entries(groups).sort((a, b) => a[0].localeCompare(b[0]));
-  }, [filteredShifts]);
+  }, [finalShifts]);
 
   useEffect(() => {
     if (!hasScrolled.current && scrollRef.current && months.length > 0) {
