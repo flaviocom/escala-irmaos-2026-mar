@@ -3,11 +3,12 @@ import { format } from 'date-fns';
 
 /**
  * Função para exportar a escala como imagem.
- * Versão Robusta: Corta automaticamente escalas gigantes para evitar imagens infinitas.
+ * Versão ULTRA-ROBUSTA: Agora usa um clone do elemento para garantir o corte físico
+ * dos dias excedentes sem afetar a visão do usuário e garantindo o tamanho da imagem.
  */
 export async function exportToImage(elementId: string) {
-  const node = document.getElementById(elementId);
-  if (!node) {
+  const originalNode = document.getElementById(elementId);
+  if (!originalNode) {
     alert("Não foi possível encontrar a escala.");
     return;
   }
@@ -16,17 +17,20 @@ export async function exportToImage(elementId: string) {
   const activeFiltersText = document.getElementById('active-filters-count')?.textContent || "0";
   const isFiltered = parseInt(activeFiltersText) > 0;
 
-  // 2. Localizar todos os cartões de dias da escala
-  const allShifts = Array.from(node.querySelectorAll('.group.relative'));
+  // 2. Localizar todos os cartões de dias da escala ORIGINAL
+  const allShifts = originalNode.querySelectorAll('.group.relative');
 
-  // 3. Regra de Segurança: Se não houver filtro e houver muita coisa, limitamos a 20 dias
+  // 3. Regra de Segurança: Se não houver filtro e houver muita coisa, limitamos a 15 dias
+  const MAX_GIGANTE = 15;
   let forceSlice = false;
-  if (!isFiltered && allShifts.length > 20) {
+
+  if (!isFiltered && allShifts.length > MAX_GIGANTE) {
     forceSlice = true;
     const confirmSlice = confirm(
-      `Escala muito longa (${allShifts.length} dias). \n\n` +
-      "Para a foto não ficar 'gigante' e ilegível no WhatsApp, vamos gerar apenas os PRÓXIMOS 20 DIAS. \n\n" +
-      "Dica: Para exportar o mês inteiro, use o filtro de 'Mês' antes."
+      `Sua escala está muito longa (${allShifts.length} dias). \n\n` +
+      "Isso gera aquela imagem 'estrada infinita' que é impossível de ler no WhatsApp. \n\n" +
+      "Vamos gerar apenas os PRÓXIMOS 15 DIAS para a imagem ficar nítida. \n\n" +
+      "Se precisar da escala completa, por favor, selecione um 'Mês' nos filtros primeiro."
     );
     if (!confirmSlice) return;
   }
@@ -34,35 +38,55 @@ export async function exportToImage(elementId: string) {
   const exportHeader = document.getElementById('export-header');
   document.body.classList.add('is-exporting');
 
-  // Esconder dias excedentes se for o caso
-  if (forceSlice) {
-    allShifts.forEach((el, index) => {
-      if (index >= 20) (el as HTMLElement).style.display = 'none';
-    });
-  }
-
   try {
+    // Revelar cabeçalho para a foto
     if (exportHeader) {
       exportHeader.classList.remove('hidden');
       exportHeader.classList.add('flex');
     }
 
-    // Esperar renderização de fontes e imagens
+    // Criar um CLONE para exportação. Assim podemos remover elementos fisicamente
+    // sem bugar a tela principal e garantir que a altura da imagem seja recalculada.
+    const clone = originalNode.cloneNode(true) as HTMLElement;
+    clone.style.width = '1000px';
+    clone.style.padding = '40px';
+    clone.style.margin = '0';
+    clone.style.backgroundColor = '#ffffff';
+    clone.style.position = 'absolute';
+    clone.style.left = '-9999px';
+    clone.style.top = '0';
+    document.body.appendChild(clone);
+
+    // Se for escala gigante, remover DIVS físicas do clone
+    if (forceSlice) {
+      const cloneShifts = clone.querySelectorAll('.group.relative');
+      cloneShifts.forEach((el, index) => {
+        if (index >= MAX_GIGANTE) {
+          el.remove();
+        }
+      });
+
+      // Se ficaram headers de meses vazios, remover eles também
+      const monthContainers = clone.querySelectorAll('.bg-white.rounded-3xl');
+      monthContainers.forEach((container) => {
+        if (container.querySelectorAll('.group.relative').length === 0) {
+          container.remove();
+        }
+      });
+    }
+
+    // Esperar renderização de fontes no clone
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    // Gerar a foto
-    const blob = await toBlob(node, {
-      quality: 0.9,
-      pixelRatio: 2, // Ideal para WhatsApp
-      backgroundColor: '#ffffff',
-      width: 1000,
-      style: {
-        transform: 'none',
-        width: '1000px',
-        margin: '0',
-        padding: '40px'
-      }
+    // Gerar a foto a partir do CLONE
+    const blob = await toBlob(clone, {
+      quality: 0.95,
+      pixelRatio: 2,
+      backgroundColor: '#ffffff'
     });
+
+    // Limpeza do clone
+    document.body.removeChild(clone);
 
     if (!blob) throw new Error('Falha ao gerar imagem');
 
@@ -75,10 +99,12 @@ export async function exportToImage(elementId: string) {
         const file = new File([blob], fileName, { type: 'image/png' });
         await navigator.share({ files: [file], title: 'Escala Porteiros CCB' });
         return;
-      } catch (e) { console.warn('Share falhou'); }
+      } catch (e) {
+        console.warn('Share nativo falhou, tentando download direto...');
+      }
     }
 
-    // 💻 PC: Download com técnica de Blob segura
+    // 💻 PC: Download
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -92,21 +118,13 @@ export async function exportToImage(elementId: string) {
     }, 1000);
 
   } catch (err) {
-    console.error('Erro:', err);
-    alert("Erro ao gerar imagem. Tente filtrar por um período menor.");
+    console.error('Erro na exportação:', err);
+    alert("Houve um erro técnico. Tente filtrar por um período menor.");
   } finally {
-    // Restaurar a interface para o usuário
     if (exportHeader) {
       exportHeader.classList.add('hidden');
       exportHeader.classList.remove('flex');
     }
     document.body.classList.remove('is-exporting');
-
-    // Voltar a mostrar os dias escondidos na tela do app
-    if (forceSlice) {
-      allShifts.forEach((el) => {
-        (el as HTMLElement).style.display = '';
-      });
-    }
   }
 }

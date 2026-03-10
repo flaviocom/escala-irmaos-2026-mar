@@ -182,7 +182,7 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
             </h3>
           </div>
 
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-gray-200">
             {monthShifts.map((shift) => {
               const isToday = isSameDay(shift.date, today);
 
