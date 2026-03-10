@@ -199,7 +199,7 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
                   ref={shift.id === firstUpcomingShiftId ? scrollRef : null}
                   id={shift.id}
                   className={clsx(
-                    "group relative transition-colors scroll-mt-24",
+                    "group relative transition-colors scroll-mt-24 export-item",
                     isToday && "bg-amber-50/40 border-l-4 border-l-amber-500 ring-1 ring-amber-500/10 z-10"
                   )}
                 >

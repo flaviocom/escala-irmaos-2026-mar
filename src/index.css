@@ -108,22 +108,42 @@ body.is-exporting .hide-on-export {
   display: none !important;
 }
 
-/* Garante que o container da escala se estenda para a largura total do print (1000px) */
+/* Força fundo branco e largura 1000px na exportação */
 body.is-exporting #schedule-container {
   max-width: none !important;
   width: 1000px !important;
   padding: 40px !important;
   margin: 0 !important;
   background-color: #ffffff !important;
+  display: block !important;
+  /* Re-calcula layout bloqueado */
 }
 
-/* Evita que sombras e bordas de cards fiquem cortadas no snapshot */
-body.is-exporting .bg-white.rounded-3xl.shadow-sm {
-  box-shadow: none !important;
-  border-color: #f3f4f6 !important;
-}
-
-/* Oculta dias extras quando se exporta escala cheia sem filtro */
-body.is-exporting .hide-for-length {
+/* Oculta dias excedentes se não houver filtro (evita bug de altura infinita) */
+body.limit-export .export-item:nth-child(n+21) {
   display: none !important;
+}
+
+/* Aumenta contraste visual para quem tem dificuldade de leitura */
+body.is-exporting .text-gray-900,
+body.is-exporting .text-gray-800 {
+  color: #000000 !important;
+}
+
+body.is-exporting .text-gray-500,
+body.is-exporting .text-gray-400 {
+  color: #374151 !important;
+  /* gray-700 para dar contraste */
+}
+
+body.is-exporting .divide-gray-200 {
+  border-color: #9CA3AF !important;
+  /* gray-400 para dividir bem os dias */
+}
+
+body.is-exporting .shadow-sm,
+body.is-exporting .shadow-md {
+  box-shadow: none !important;
+  /* Remove sombras que podem virar manchas na foto */
+  border-color: #E5E7EB !important;
 }
