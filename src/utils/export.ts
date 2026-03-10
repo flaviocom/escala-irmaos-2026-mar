@@ -24,17 +24,18 @@ export async function exportToImage(elementId: string) {
     // e para as imagens e fontes da página estabilizarem.
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    // 3. Capturar a imagem limpa e focada no que o React gerou (exatamente os 10 compromissos)
+    // 3. Capturar a imagem com uma base FÍSICA maior (1500px) e pixel ratio moderado 
+    // (Altos pixelRatios quebram a engine do canvas mobile e causam o "serrilhado" ou baixa qualidade no WhatsApp)
     const blob = await toBlob(node, {
-      quality: 0.98,
-      pixelRatio: 3,
+      quality: 1.0,
+      pixelRatio: 2,
       backgroundColor: '#ffffff',
-      width: 1000,
+      width: 1500,
       style: {
         transform: 'none',
-        width: '1000px',
+        width: '1500px',
         margin: '0',
-        padding: '30px',
+        padding: '60px',
         display: 'block'
       }
     });
