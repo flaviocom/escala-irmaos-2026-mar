@@ -8,7 +8,7 @@ import { ValidationView } from './components/ValidationView';
 import { MultiSelect } from './components/MultiSelect';
 import { DateSearch } from './components/DateSearch';
 import { Calendar, Download, Filter, X, LayoutGrid, BarChart3, ShieldCheck, Menu, SlidersHorizontal, ChevronDown, MessageCircle, User, ChevronRight, Search, Loader2 } from 'lucide-react';
-import { format, parseISO, addDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
+import { format, parseISO, addDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfDay, endOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { clsx } from 'clsx';
 import logo from './assets/logo-ccb-light.png';
@@ -98,7 +98,7 @@ function App() {
   const handleQuickFilter = (type: '15days' | 'week' | 'month') => {
     const today = new Date();
     let start: Date, end: Date;
-    if (type === '15days') { start = today; end = addDays(today, 14); }
+    if (type === '15days') { start = startOfDay(today); end = endOfDay(addDays(today, 14)); }
     else if (type === 'week') { start = startOfWeek(today, { locale: ptBR }); end = endOfWeek(today, { locale: ptBR }); }
     else { start = startOfMonth(today); end = endOfMonth(today); }
     setDateRange({ start, end });
